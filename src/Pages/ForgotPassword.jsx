@@ -56,15 +56,15 @@ const Login = () => {
       >
 
         <Form.Item label="Current password" name="currentpassword">
-          <Input />
+          <Input.Password />
         </Form.Item>
-        <Form.Item style={{ width: '97%', marginLeft: '15px' }}
+        <Form.Item style={{ marginLeft: '15px' }}
           label="New Password"
           name="newpassword"
         >
           <Input.Password />
         </Form.Item>
-        <Form.Item
+        <Form.Item style={{ marginLeft: '-5px' }}
           label="Confirm Password"
           name="confirmpassword"
         >
