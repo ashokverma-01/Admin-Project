@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Form, Input, Select, Button, Row, Col } from "antd";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 const { Option } = Select;
 
@@ -17,6 +17,7 @@ const Addusers = () => {
     const [phoneNumber, setPhoneNumber] = useState("");
     const [address, setAddress] = useState("");
     const [error, setError] = useState(false);
+    const Navigate = useNavigate();
 
     const handleSubmit = async () => {
         // Extracting the form data from state variables
@@ -45,6 +46,7 @@ const Addusers = () => {
 
             result = await result.json();
             console.warn(result);
+            Navigate('/users')
 
             // Clear input fields after successful form submission
             setFirstName("");
@@ -71,7 +73,7 @@ const Addusers = () => {
             <Form onFinish={handleSubmit} layout="vertical">
                 <h1 className="form-title">Add User Data</h1>
                 <Row gutter={16}>
-                    <Col span={8}>
+                    <Col span={12}>
                         <Form.Item
                             label="First Name"
                             name="firstname"
@@ -84,7 +86,7 @@ const Addusers = () => {
                             />
                         </Form.Item>
                     </Col>
-                    <Col span={8}>
+                    <Col span={12}>
                         <Form.Item
                             label="Last Name"
                             name="lastname"
@@ -97,7 +99,9 @@ const Addusers = () => {
                             />
                         </Form.Item>
                     </Col>
-                    <Col span={8}>
+                </Row>
+                <Row gutter={16}>
+                    <Col span={12}>
                         <Form.Item
                             label="Email"
                             name="email"
@@ -111,9 +115,7 @@ const Addusers = () => {
                             />
                         </Form.Item>
                     </Col>
-                </Row>
-                <Row gutter={16}>
-                    <Col span={8}>
+                    <Col span={12}>
                         <Form.Item
                             label="Technology"
                             name="technology"
@@ -127,7 +129,9 @@ const Addusers = () => {
                             />
                         </Form.Item>
                     </Col>
-                    <Col span={8}>
+                </Row>
+                <Row gutter={16}>
+                    <Col span={12}>
                         <Form.Item
                             label="Age"
                             name="age"
@@ -141,7 +145,7 @@ const Addusers = () => {
                             />
                         </Form.Item>
                     </Col>
-                    <Col span={8}>
+                    <Col span={12}>
                         <Form.Item
                             label="Gender"
                             name="gender"
@@ -162,7 +166,7 @@ const Addusers = () => {
                     </Col>
                 </Row>
                 <Row gutter={16}>
-                    <Col span={8}>
+                    <Col span={12}>
                         <Form.Item
                             label="Phone Number"
                             name="phoneNumber"
@@ -178,7 +182,7 @@ const Addusers = () => {
                             />
                         </Form.Item>
                     </Col>
-                    <Col span={8} style={{ marginLeft: '100px' }}>
+                    <Col span={12}>
                         <Form.Item
                             label="Address"
                             name="address"
@@ -187,7 +191,7 @@ const Addusers = () => {
                             ]}
                         >
                             <Input
-                                style={{ width: '370px' }}
+                                // style={{ width: '370px' }}
                                 className="input-field"
                                 value={address}
                                 onChange={(e) => setAddress(e.target.value)}

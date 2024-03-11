@@ -11,6 +11,7 @@ import ProductList from "./Pages/Productlist/ProductList";
 import Product from "./Pages/ProductPage/Product";
 import NewProduct from "./Pages/CreatProduct/NewProduct";
 import Login from "./Pages/Login";
+import ForgotPassword from "./Pages/ForgotPassword"
 import Protected from "./Pages/Protected";
 import Layout from "./Pages/Layout";
 
@@ -18,20 +19,21 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   return (
     <BrowserRouter>
-  
+
       <Routes>
-        <Route path="/Login" element={<Login setIsLoggedIn={setIsLoggedIn} />}/>
-        <Route path="/" element={ <Protected> {" "} <Layout />{" "} </Protected>}>
+        <Route path="/Login" element={<Login setIsLoggedIn={setIsLoggedIn} />} />
+        <Route exact path="/ForgotPassword" element={<ForgotPassword />} />
+        <Route path="/" element={<Protected> {" "} <Layout />{" "} </Protected>}>
           <Route exact path="/" element={<Home />} />
           <Route exact path="/users" element={<UserList />} />
-          <Route exact path="/user/:userId" element={<User />} />
+          <Route exact path="/user/:id" element={<User />} />
           <Route exact path="/newUser" element={<NewUser />} />
           <Route exact path="/products" element={<ProductList />} />
           <Route exact path="/product/:productId" element={<Product />} />
           <Route exact path="/newProduct" element={<NewProduct />} />
         </Route>
       </Routes>
-    
+
     </BrowserRouter>
   );
 }

@@ -2,8 +2,10 @@ const express = require("express");
 const Config = require('./db/Config');
 const User = require("./models/User");
 const Adduser = require("./models/Adduser")
+const Userimage = require("./models/Userimage")
 const Cors = require("cors");
 const bodyParser = require('body-parser');
+const multer = require("multer");
 
 
 
@@ -19,7 +21,6 @@ app.use(bodyParser.json());
 app.post('/User', async (req, res) => {
     try {
         const { email, password } = req.body;
-
         console.log(req.body)
 
         console.log("Received credentials:", email, password);
@@ -99,6 +100,7 @@ app.post('/Adduser', async (req, res) => {
     }
 });
 
+
 //get users api 
 app.get("/User", async (req, res) => {
     try {
@@ -117,55 +119,44 @@ app.delete("/User/:_id", async (req, resp) => {
 });
 
 //user update api 
-// app.get("/UpdateUser/:_id", async (req, resp) => {
-//     const result = await Adduser.findOne({ _id: req.params._id })
-//     if (result) {
-//         resp.send(result);
-//     } else {
-//         resp.send({ result: "No Record Found" })
-//     }
-// });
-app.put('/UpdateUser/:id', async (req, res) => {
-    const userId = req.params.id;
-    const updateFields = req.body; // Assuming you send the fields to be updated in the request body
-
+app.get("/UpdateUser/:_id", async (req, resp) => {
+    const result = await Adduser.findOne({ _id: req.params._id })
+    if (result) {
+        resp.send(result);
+    } else {
+        resp.send({ result: "No Record Found" })
+    }
+});
+app.put("/UpdateUser/:_id", async (req, resp) => {
     try {
-        // Check if the provided ID is a valid ObjectId
-        if (!mongoose.Types.ObjectId.isValid(userId)) {
-            return res.status(400).json({ message: 'Invalid user ID' });
-        }
-
-        // Find the user by ID and update the fields
-        const updatedUser = await Adduser.findByIdAndUpdate(userId, updateFields, { new: true });
-
-        if (!updatedUser) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        // Send the updated user object as a response
-        res.status(200).json(updatedUser);
+        const result = await Adduser.updateOne(
+            { _id: req.params._id }, // Filter to find the document with the given _id
+            { $set: req.body } // Update with the data from req.body
+        );
+        resp.send(result);
     } catch (error) {
-        console.error('Error updating user:', error);
-        res.status(500).json({ message: 'Internal server error' });
+        resp.status(500).send(error);
     }
 });
 
 //search api user
-app.get("/Search/:key", async (req, resp) => {
-    let result = await Adduser.find({
-        "$or": [
-            { firstname: { $regex: req.params.key } },
-            { lastname: { $regex: req.params.key } },
-            { email: { $regex: req.params.key } },
-            { technology: { $regex: req.params.key } },
-            { age: { $regex: req.params.key } },
-            { gender: { $regex: req.params.key } },
-            { phoneNumber: { $regex: req.params.key } },
-            { address: { $regex: req.params.key } },
-        ]
-    });
-    resp.send(result)
-})
+app.get('/Search/:value', async (req, res) => {
+    try {
+        const { value } = req.params;
+        // Perform a case-insensitive search for users whose firstname, lastname, or email match the search value
+        const filteredUsers = await Adduser.find({
+            $or: [
+                { firstname: { $regex: new RegExp(value, 'i') } },
+                { lastname: { $regex: new RegExp(value, 'i') } },
+                { email: { $regex: new RegExp(value, 'i') } }
+            ]
+        });
+        res.json(filteredUsers);
+    } catch (error) {
+        console.error("Error searching users:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
 
 //total users api
 // Simulated database
@@ -191,6 +182,26 @@ app.get('/api/total-male', async (req, res) => {
 });
 
 //active deactive api user 
+app.patch('/Active/:id', async (req, res) => {
+    const { id } = req.params;
+    const { active } = req.body;
+
+    try {
+        const user = await Adduser.findById(id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Update the active state in the database
+        user.active = active;
+        await user.save();
+
+        res.json({ message: 'Active state updated successfully' });
+    } catch (error) {
+        console.error('Error updating active state:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
 
 
 app.listen(5500, () => {

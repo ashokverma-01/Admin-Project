@@ -1,7 +1,7 @@
 import "./Login.css"
 import React from "react";
 import { Input, Button, Form, message } from "antd";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 
 
@@ -64,12 +64,15 @@ const Login = () => {
         >
           <Input.Password />
         </Form.Item>
-        <Button className="btnform"
-          type="primary"
-          onClick={handleLogin}
-        >
-          Login
-        </Button>
+        <div className="btn">
+          <Button
+            type="primary"
+            onClick={handleLogin}
+          >
+            Login
+          </Button>
+          <Link to='/ForgotPassword' className="link"> Forgot password ?</Link>
+        </div>
       </Form>
 
     </div>

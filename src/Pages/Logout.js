@@ -1,20 +1,39 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
 import { Popover, Button, Avatar } from "antd";
 import { UserOutlined } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
 
 const Logout = () => {
     const navigate = useNavigate();
+    const [userImage, setUserImage] = useState(null);
+    const [userEmail, setUserEmail] = useState("");
 
-    // Retrieve user email and image URL from local storage
-    const userEmail = localStorage.getItem("userEmail");
-    const userImage = localStorage.getItem("userImage") || ""; // set default value to an empty string if userImage is null
-    // You don't need to set userImage again from user object. It's already retrieved from localStorage.
+    useEffect(() => {
+        // Function to fetch user's image when component mounts
+        async function fetchUserImage() {
+            try {
+                const response = await fetch(`http://localhost:5000/user/image?email=${userEmail}`);
+                if (!response.ok) {
+                    throw new Error("Failed to fetch user image");
+                }
+                const data = await response.json();
+                setUserImage(data.imageUrl);
+            } catch (error) {
+                console.error("Error fetching user image:", error);
+            }
+        }
+
+        // Retrieve user email from local storage
+        const userEmail = localStorage.getItem("userEmail");
+        setUserEmail(userEmail);
+
+        // Fetch user's image
+        fetchUserImage();
+    }, [userEmail]);
 
     const handleLogout = () => {
         localStorage.removeItem("userEmail");
-        localStorage.removeItem("userImage");
-
+        localStorage.removeItem("userImage"); // Remove the image URL from local storage
         navigate("/Login");
     };
 
@@ -22,12 +41,18 @@ const Logout = () => {
         <Popover
             content={
                 <div>
-                    <Avatar
-                        size={64}
-                        src={userImage} // set the image source
-                        icon={!userImage && <UserOutlined />} // fallback to default icon if no image is provided
-                        style={{ marginBottom: "10px" }}
-                    />
+                    <div>
+                        {userImage ? (
+                            <Avatar
+                                size={64}
+                                src={userImage}
+                                alt="User Image"
+                                style={{ marginBottom: "10px" }}
+                            />
+                        ) : (
+                            <Avatar size={64} icon={<UserOutlined />} style={{ marginBottom: "10px" }} />
+                        )}
+                    </div>
                     <p>Email: {userEmail}</p>
                     <Button type="primary" danger onClick={handleLogout}>
                         Logout
