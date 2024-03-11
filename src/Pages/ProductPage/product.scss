@@ -1,0 +1,143 @@
+.product {
+    padding: 20px;
+
+
+        .productTitleContainer{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            .productTitle{
+                font-weight: 600;
+                font-size: x-large;
+            }
+
+            .productAddButton{
+                width: 80px;
+                border: none;
+                padding: 5px;
+                background-color: teal;
+                color: white;
+                border-radius: 5px;
+                font-size: 16px;
+                cursor: pointer;
+            }
+        }
+
+        .productTop{
+            display: flex;
+
+            .productTopLeft, .productTopRight{
+                flex:1
+            }
+
+            .productTopRight{
+                padding: 20px;
+                margin: 20px;
+                -webkit-box-shadow: 0px 3px 9px 0px rgba(0, 0, 0, 0.27);
+                -moz-box-shadow: 0px 3px 9px 0px rgba(0, 0, 0, 0.27);
+                box-shadow: 0px 3px 9px 0px rgba(0, 0, 0, 0.27);
+                background-color: white;
+
+                .productInfoTop{
+                    display: flex;
+                    align-items: center;
+
+                    .productName{
+                        font-weight: 600;
+                    }
+
+                    .productInfoImg{
+                        width: 40px;
+                        height: 40px;
+                        object-fit: cover;
+                        border-radius: 50%;
+                        border: 1px solid gray;
+                        margin-right: 20px;
+                    }
+                }
+
+                .productInfoBottom{
+                    margin-top: 10px;
+
+                    .productInfoItem{
+                        width: 150px;
+                        display: flex;
+                        justify-content: space-between;
+
+                        .productInfoValue{
+                            color: grey;
+                        }
+                    }
+                }
+            }
+           
+        }
+
+
+        .productBottom{
+           padding: 20px;
+           margin: 20px;
+           -webkit-box-shadow: 0px 3px 9px 0px rgba(0, 0, 0, 0.27);
+                -moz-box-shadow: 0px 3px 9px 0px rgba(0, 0, 0, 0.27);
+                box-shadow: 0px 3px 9px 0px rgba(0, 0, 0, 0.27);
+                background-color: white;
+
+            .productForm{
+                display: flex;
+                justify-content: space-between;
+
+                .productFormLeft{
+                    display: flex;
+                    flex-direction: column;
+
+                    label{
+                        margin-bottom: 10px;
+                        color: gray;
+                    }
+
+                    input{
+                        margin-bottom: 10px;
+                        border: none;
+                        padding: 5px;
+                        border-bottom: 1px solid gray;
+                    }
+
+                    select{
+                        margin-bottom: 10px;
+                    }
+                }
+
+                .productFormRight{
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-around;
+
+                    .productUpload{
+                        display: flex;
+                        align-items: center;
+
+                        .productUploadImg{
+                            width: 100px;
+                            height: 100px;
+                            border-radius: 10px;
+                            object-fit: cover;
+
+                        }
+                    }
+
+                    .productButton{
+                        border: none;
+                        padding: 5px;
+                        border-radius: 5px;
+                        background-color: darkblue;
+                        color: white;
+                        font-weight: 600;
+                        cursor: pointer;
+                    }
+                }
+            }
+
+
+        }
+}

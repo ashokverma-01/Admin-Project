@@ -1,0 +1,16 @@
+.App{
+
+    .container{
+        display: flex;
+        background-color: rgba(176, 107, 58, 0.578);
+        .link{
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .others{
+            flex: 5;
+            margin: 20px;
+        }
+    }
+}
