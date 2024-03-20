@@ -8,7 +8,6 @@ const File = require("./models/File")
 const Cors = require("cors");
 const bodyParser = require('body-parser');
 const multer = require("multer");
-const bcrypt = require("bcrypt");
 const path = require("path");
 
 const app = express();
@@ -419,6 +418,27 @@ app.get('/api/total-drivers', async (req, res) => {
     }
 });
 
+//active deactive api user 
+app.patch('/ActiveDriver/:id', async (req, res) => {
+    const { id } = req.params;
+    const { active } = req.body;
+
+    try {
+        const driver = await Driver.findById(id);
+        if (!driver) {
+            return res.status(404).json({ message: 'Driver not found' });
+        }
+
+        // Update the active state in the database
+        driver.active = active;
+        await driver.save();
+
+        res.json({ message: 'Active state updated successfully' });
+    } catch (error) {
+        console.error('Error updating active state:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
 
 
 //get car api 
