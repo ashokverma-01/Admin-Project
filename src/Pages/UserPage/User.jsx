@@ -22,7 +22,7 @@ const UpdateUser = ({ userId }) => {
     useEffect(() => {
         // Fetch user data based on userId when component mounts
         fetchData();
-    }, [userId]);
+    }, []);
 
     const fetchData = async () => {
         console.log(parmas)
@@ -39,7 +39,7 @@ const UpdateUser = ({ userId }) => {
     };
 
     const handleUpdate = async () => {
-        console.log(firstname, lastname, email, technology, age, gender, phoneNumber, address)
+        // console.log(firstname, lastname, email, technology, age, gender, phoneNumber, address)
         let result = await fetch(`http://localhost:5500/UpdateUser/${parmas.id}`, {
             method: 'put',
             body: JSON.stringify({ firstname, lastname, email, technology, age, gender, phoneNumber, address }),
@@ -62,54 +62,52 @@ const UpdateUser = ({ userId }) => {
                     <Col span={12}>
                         <Form.Item
                             label="First Name"
-                            name="firstname"
                             initialValue={firstname}
 
                         >
                             <Input
+                                value={firstname}
                                 className="input-field"
-                                onChange={(e) => setFirstName(e.target.value)}
+                                onChange={e => setFirstName(e.target.value)}
                             />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
                         <Form.Item
                             label="Last Name"
-                            name="lastname"
                             initialValue={lastname}
 
                         >
                             <Input
+                                value={lastname}
                                 className="input-field"
-                                onChange={(e) => setLastName(e.target.value)}
+                                onChange={e => setLastName(e.target.value)}
                             />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
                         <Form.Item
                             label="Email"
-                            name="email"
                             initialValue={email}
                         // rules={[{ required: true, message: "Please input your email!" }]}
                         >
                             <Input
+                                value={email}
                                 className="input-field"
-                                type="email"
-                                onChange={(e) => setEmail(e.target.value)}
+                                onChange={e => setEmail(e.target.value)}
                             />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
                         <Form.Item
                             label="Technology"
-                            name="technology"
                             initialValue={technology}
                         // rules={[{ required: true, message: "Please input your technology" }]}
                         >
                             <Input
+                                value={technology}
                                 className="input-field"
-                                type="technology"
-                                onChange={(e) => setTechnology(e.target.value)}
+                                onChange={e => setTechnology(e.target.value)}
                             />
                         </Form.Item>
                     </Col>
@@ -118,27 +116,23 @@ const UpdateUser = ({ userId }) => {
                     <Col span={12}>
                         <Form.Item
                             label="Age"
-                            name="age"
                             initialValue={age}
                         // rules={[{ required: true, message: "Please input your age!" }]}
                         >
                             <Input
+                                value={age}
                                 className="input-field"
                                 type="number"
-                                onChange={(e) => setAge(e.target.value)}
+                                onChange={e => setAge(e.target.value)}
                             />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
-                        <Form.Item
-                            label="Gender"
-                            name="gender"
-                            initialValue={gender}
-
-                        >
+                        <Form.Item label="Gender" initialValue={gender}>
                             <Select
+                                value={gender}
                                 className="form-select"
-                                onChange={(e) => setGender('gender', e.target.value)}
+                                onChange={(value) => setGender(value)}
                             >
                                 <Option value="male">Male</Option>
                                 <Option value="female">Female</Option>
@@ -149,29 +143,26 @@ const UpdateUser = ({ userId }) => {
                 </Row>
                 <Row gutter={16}>
                     <Col span={12}>
-                        <Form.Item
-                            label="Phone Number"
-                            name="phoneNumber"
-                            initialValue={phoneNumber}
-
-                        >
+                        <Form.Item label="Phone Number" initialValue={phoneNumber}>
                             <PhoneInput
+                                value={phoneNumber}
                                 country={"india"}
-                                className="phone-input"
-                                onChange={(e) => setPhoneNumber('phoneNumber', e.target.value)}
+                                // className="phone-input"
+                                onChange={setPhoneNumber} // Corrected onChange handler
                             />
                         </Form.Item>
+
                     </Col>
                     <Col span={12}>
                         <Form.Item
                             label="Address"
-                            name="address"
                             initialValue={address}
 
                         >
                             <Input
                                 className="input-field"
-                                onChange={(e) => setAddress('address', e.target.value)}
+                                value={address}
+                                onChange={e => setAddress(e.target.value)}
                             />
                         </Form.Item>
                     </Col>

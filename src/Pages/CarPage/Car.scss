@@ -1,0 +1,23 @@
+/* Car.scss */
+
+.update-car-form-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: rgb(143, 197, 206);
+  }
+  
+  .update-car-form-container .ant-form-item {
+    margin-bottom: 16px;
+  }
+  
+  .update-car-form-container .ant-form-item-label {
+    font-weight: bold;
+  }
+  
+  .update-car-form-container .submit-btn {
+    width: 100%;
+  }
+  

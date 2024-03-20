@@ -18,10 +18,12 @@ import {
 
 const Dashboard = () => {
     const [totalUsers, setTotalUsers] = useState(0);
+    const [totalDrivers, setTotalDrivers] = useState(0);
     const [totalMaleUsers, setTotalMaleUsers] = useState(0); // State for total male users
 
     useEffect(() => {
         fetchTotalUsers();
+        fetchTotalDrivers();
         fetchTotalMaleUsers(); // Fetch total male users count on component mount
     }, []);
 
@@ -45,6 +47,16 @@ const Dashboard = () => {
         }
     };
 
+    const fetchTotalDrivers = async () => {
+        try {
+            const response = await fetch('http://localhost:5500/api/total-drivers');
+            const data = await response.json();
+            setTotalDrivers(data.totalDrivers);
+        } catch (error) {
+            console.error('Error fetching total users:', error);
+        }
+    };
+
     const data = [
         { name: "Jan", "Active User": 4000 },
         { name: "Feb", "Active User": 3000 },
@@ -63,7 +75,7 @@ const Dashboard = () => {
     return (
         <div className="dashboard">
             <div className="grid-container">
-                <div className="grid-item" style={{ backgroundColor: "red" }}>
+                <div className="grid-item" style={{ backgroundColor: "rgb(245, 53, 171)" }}>
                     <FontAwesomeIcon icon={faBox} />
                     <p>Total User</p>
                     <h2>{totalUsers}</h2>
@@ -80,8 +92,8 @@ const Dashboard = () => {
                 </div>
                 <div className="grid-item" style={{ backgroundColor: "aqua" }}>
                     <FontAwesomeIcon icon={faShoppingCart} />
-                    <p>Sales</p>
-                    <h2>2450</h2>
+                    <p>Total Drivers</p>
+                    <h2>{totalDrivers}</h2>
                 </div>
             </div>
 

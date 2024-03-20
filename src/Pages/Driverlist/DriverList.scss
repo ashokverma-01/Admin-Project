@@ -1,0 +1,56 @@
+/* DriverList.css */
+
+.home {
+  padding: 20px;
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.search {
+  width: 300px;
+}
+
+.filters {
+  margin-left: 50px;
+}
+
+.addbtn {
+  margin-left: auto;
+}
+
+.table {
+  font-family: Arial, sans-serif;
+}
+
+.ant-table-cell {
+  white-space: nowrap;
+}
+
+.modal-text {
+  margin-bottom: 16px;
+}
+
+.circular-image {
+  width: 60px;
+  /* Adjust as needed */
+  height: 60px;
+  /* Adjust as needed */
+  border-radius: 50%;
+  /* This creates a circular shape */
+  overflow: hidden;
+  /* Ensures the image stays within the circular shape */
+}
+
+.circular-image img {
+  width: 100%;
+  /* Ensures the image fills the circular container */
+  height: auto;
+  /* Maintains aspect ratio */
+  display: block;
+  /* Removes any default inline spacing */
+}

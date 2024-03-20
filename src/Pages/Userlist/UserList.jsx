@@ -1,21 +1,26 @@
 import React, { useState, useEffect } from "react";
-import { Button, Space, Table, Select, Switch, Input, Form } from "antd"; // Import Modal
+import { Button, Space, Table, Select, Switch, Input, Form, DatePicker, Modal } from "antd"; // Import Modal
 import { MdDelete } from "react-icons/md";
 import { Link } from "react-router-dom";
 import { FaRegEdit } from "react-icons/fa";
 import "./userList.scss";
+import moment from "moment";
 
 const { Search } = Input;
 const { Option } = Select;
+const { RangePicker } = DatePicker;
 
 const UserList = () => {
   const [data, setData] = useState([]);
   const [sortedInfo, setSortedInfo] = useState({});
   const [filteredData, setFilteredData] = useState([]);
-  const [search, setSearchValue] = useState([])
+  const [searchValue, setSearchValue] = useState('');
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [deleteUserId, setDeleteUserId] = useState(null);
+
   const [pagination, setPagination] = useState({
     current: 1,
-    pageSize: 7, // Number of records per page
+    pageSize: 6, // Number of records per page
   });
 
   useEffect(() => {
@@ -39,25 +44,36 @@ const UserList = () => {
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleModalOk = async () => {
     try {
-      const response = await fetch(`http://localhost:5500/User/${id}`, {
+      await fetch(`http://localhost:5500/User/${deleteUserId}`, {
         method: "DELETE",
       });
-      if (!response.ok) {
-        throw new Error("Failed to delete the record");
-      }
       // If the deletion is successful, update the data by refetching
       fetchData();
     } catch (error) {
       console.error("Error deleting record:", error);
+    } finally {
+      setDeleteUserId(null);
+      setDeleteModalVisible(false);
     }
   };
 
-  const searchHandle = async (value) => {
+  const handleModalCancel = () => {
+    setDeleteUserId(null);
+    setDeleteModalVisible(false);
+  };
+
+  const handleDelete = (id) => {
+    setDeleteUserId(id);
+    setDeleteModalVisible(true);
+  };
+
+
+  const searchHandle = async (key) => {
     try {
-      if (value) {
-        let result = await fetch(`http://localhost:5500/Search/${value}`);
+      if (key) {
+        let result = await fetch(`http://localhost:5500/search/${key}`);
         if (!result.ok) {
           throw new Error("Failed to search data");
         }
@@ -74,6 +90,7 @@ const UserList = () => {
     }
   };
 
+
   const handleChange = (pagination, filters, sorter, extra) => {
     console.log('Various parameters', pagination, filters, sorter, extra);
     setSortedInfo(sorter);
@@ -83,7 +100,7 @@ const UserList = () => {
     const { gender } = filters;
     if (gender && gender.length > 0 && gender[0] !== "all") {
       const filteredData = data.filter((item) => item.gender === gender[0]);
-      setData(filteredData);
+      setFilteredData(filteredData);
     } else {
       fetchData(); // If no filter is applied, fetch the data again
     }
@@ -96,6 +113,14 @@ const UserList = () => {
     } else {
       filteredData = data.filter((item) => item.gender === value);
     }
+    setFilteredData(filteredData);
+  };
+
+  const handleDateChange = (dates) => {
+    const [fromDate, toDate] = dates;
+    let filteredData = data.filter((item) =>
+      moment(item.timeTemps).isBetween(fromDate.startOf('day'), toDate.endOf('day'))
+    );
     setFilteredData(filteredData);
   };
 
@@ -124,8 +149,8 @@ const UserList = () => {
       title: "First Name",
       dataIndex: "firstname",
       key: "firstname",
-      // sorter: (a, b) => a.firstname.localeCompare(b.firstname),
-      // sortOrder: sortedInfo.columnKey === "firstname" && sortedInfo.order,
+      sorter: (a, b) => a.firstname.localeCompare(b.firstname),
+      sortOrder: sortedInfo.columnKey === "firstname" && sortedInfo.order,
     },
     {
       title: "Last Name",
@@ -164,15 +189,44 @@ const UserList = () => {
       key: "address",
     },
     {
-      title: "Active",
-      dataIndex: "active",
-      key: "active",
+      title: "Date",
+      dataIndex: "timeTemps",
+      key: "timeTemps",
+      render: (date) => <span>{moment(date).format("YYYY-MM-DD")}</span>,
+      filters: [
+        {
+          text: "Today",
+          value: moment().startOf("day").toISOString(),
+        },
+        {
+          text: "This Week",
+          value: moment().startOf("week").toISOString(),
+        },
+        {
+          text: "This Month",
+          value: moment().startOf("month").toISOString(),
+        },
+      ],
+      onFilter: (value, record) => {
+        return moment(record.timeTemps).isSameOrAfter(value, "day");
+      },
+    },
+
+    {
+      title: 'Active',
+      dataIndex: 'active',
+      key: 'active',
       render: (active, record) => (
         <Switch
           checked={active}
           onChange={(checked) => handleActiveChange(record._id, checked)}
         />
       ),
+      filters: [
+        { text: 'Active', value: true },
+        { text: 'Inactive', value: false },
+      ],
+      onFilter: (value, record) => record.active === value,
     },
     {
       title: "Action",
@@ -181,13 +235,10 @@ const UserList = () => {
           <Link to={"/user/" + record._id}>
             <FaRegEdit style={{ width: "20px", height: "20px" }}></FaRegEdit>
           </Link>
-          <a href="#">
-            {" "}
-            <MdDelete
-              onClick={() => handleDelete(record._id)}
-              style={{ width: "20px", height: "20px" }}
-            />
-          </a>
+          <MdDelete
+            onClick={() => handleDelete(record._id)}
+            style={{ width: "20px", height: "20px", color: "red", cursor: "pointer" }}
+          />
         </Space>
       ),
     },
@@ -207,7 +258,7 @@ const UserList = () => {
             />
           </Space>
         </div>
-        <div className="filters">
+        <div className="filters" style={{ marginLeft: '50px' }}>
           <Form layout="inline">
             <Form.Item label="Filter by Gender">
               <Select defaultValue="all" onChange={handleGenderChange} style={{ width: 120 }}>
@@ -215,6 +266,16 @@ const UserList = () => {
                 <Option value="male">Male</Option>
                 <Option value="female">Female</Option>
               </Select>
+            </Form.Item>
+          </Form>
+        </div>
+        <div className="date-filter">
+          <Form layout="inline">
+            <Form.Item label="Filter by Date">
+              <RangePicker
+                onChange={handleDateChange}
+                style={{ width: 210 }}
+              />
             </Form.Item>
           </Form>
         </div>
@@ -234,6 +295,16 @@ const UserList = () => {
           sortedInfo={sortedInfo}
         />
       </div>
+      <Modal
+        title="Confirm Delete"
+        visible={deleteModalVisible}
+        onOk={handleModalOk}
+        onCancel={handleModalCancel}
+        okText="OK"
+        cancelText="Cancel"
+      >
+        <p>Are you sure you want to delete this user?</p>
+      </Modal>
     </div>
   );
 };
