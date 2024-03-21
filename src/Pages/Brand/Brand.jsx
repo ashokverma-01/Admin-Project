@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Button, Space, Table, Input, Form, Modal, Select } from "antd";
+import { Button, Space, Table, Input, Modal } from "antd";
 import { MdDelete } from "react-icons/md";
 import { Link } from "react-router-dom";
-import moment from "moment";
 import { FaRegEdit } from "react-icons/fa";
+import moment from "moment";
 
 const { Search } = Input;
-const { Option } = Select;
 
-const CarList = () => {
+const BrandList = () => {
   const [data, setData] = useState([]);
   const [sortedInfo, setSortedInfo] = useState({});
   const [filteredData, setFilteredData] = useState([]);
@@ -20,6 +19,7 @@ const CarList = () => {
     pageSize: 4,
   });
 
+
   useEffect(() => {
     fetchData();
   }, [pagination.current]);
@@ -30,7 +30,7 @@ const CarList = () => {
 
   const fetchData = async () => {
     try {
-      const response = await fetch("http://localhost:5500/Car");
+      const response = await fetch("http://localhost:5500/brands");
       if (!response.ok) {
         throw new Error("Failed to fetch data");
       }
@@ -41,9 +41,36 @@ const CarList = () => {
     }
   };
 
+  const searchHandle = async (key) => {
+    try {
+      if (key) {
+        let result = await fetch(`http://localhost:5500/searchBrand/${key}`);
+        if (!result.ok) {
+          throw new Error("Failed to search data");
+        }
+        result = await result.json();
+        setData(result);
+      } else {
+        fetchData();
+
+      }
+      setSearchValue("");
+    } catch (error) {
+      console.error("Error searching data:", error);
+    }
+  };
+
+
+  const handleChange = (pagination, filters, sorter, extra) => {
+    console.log("Various parameters", pagination, filters, sorter, extra);
+    setSortedInfo(sorter);
+    setPagination(pagination);
+
+  };
+
   const handleModalOk = async () => {
     try {
-      await fetch(`http://localhost:5500/Car/${deleteCarId}`, {
+      await fetch(`http://localhost:5500/Brand/${deleteCarId}`, {
         method: "DELETE",
       });
       fetchData();
@@ -65,98 +92,45 @@ const CarList = () => {
     setDeleteModalVisible(true);
   };
 
-  const searchHandle = async (key) => {
-    try {
-      if (key) {
-        let result = await fetch(`http://localhost:5500/searchCar/${key}`);
-        if (!result.ok) {
-          throw new Error("Failed to search data");
-        }
-        result = await result.json();
-        setData(result);
-      } else {
-        fetchData();
-
-      }
-      setSearchValue("");
-    } catch (error) {
-      console.error("Error searching data:", error);
-    }
-  };
-
-  const handleChange = (pagination, filters, sorter, extra) => {
-    console.log("Various parameters", pagination, filters, sorter, extra);
-    setSortedInfo(sorter);
-    setPagination(pagination);
-  };
-
-  const handleColorChange = (value) => {
-    let filteredData;
-    if (value === "all") {
-      filteredData = data;
-    } else {
-      filteredData = data.filter((item) => item.color === value);
-    }
-    setFilteredData(filteredData);
-  };
-
   const columns = [
     {
-      title: "Car Image",
-      dataIndex: "image",
-      key: "image",
-      render: (image) => (
-        <img
-          src={image && `http://localhost:5500/${image.replace(/\\/g, "/")}`} // Prefix with server address
-          alt="Car Image"
-          className="circular-image"
-        />
-      ),
-    },
-    {
-      title: "Car Model",
-      dataIndex: "model",
-      key: "model",
-      sorter: (a, b) => a.model.localeCompare(b.model),
-      sortOrder: sortedInfo.columnKey === "model" && sortedInfo.order,
-    },
-    {
-      title: "Brand",
+      title: "Brand Name",
       dataIndex: "brand",
       key: "brand",
     },
     {
-      title: "Varient",
-      dataIndex: "varient",
-      key: "varient",
+      title: "Description",
+      dataIndex: "description",
+      key: "description",
     },
     {
-      title: "Year",
-      dataIndex: "year",
-      key: "year",
-    },
-    {
-      title: "Color",
-      dataIndex: "color",
-      key: "color",
-      sortOrder: sortedInfo.columnKey === "color" && sortedInfo.order,
-    },
-    {
-      title: "Price",
-      dataIndex: "price",
-      key: "price",
-    },
-    {
-      title: "Registration Date",
-      dataIndex: "registrationDate",
-      key: "registrationDate",
+      title: "Date",
+      dataIndex: "timeTemps",
+      key: "timeTemps",
       render: (date) => <span>{moment(date).format("YYYY-MM-DD")}</span>,
+      filters: [
+        {
+          text: "Today",
+          value: moment().startOf("day").toISOString(),
+        },
+        {
+          text: "This Week",
+          value: moment().startOf("week").toISOString(),
+        },
+        {
+          text: "This Month",
+          value: moment().startOf("month").toISOString(),
+        },
+      ],
+      onFilter: (value, record) => {
+        return moment(record.timeTemps).isSameOrAfter(value, "day");
+      },
     },
     {
       title: "Action",
       render: (text, record) => (
         <Space size="middle">
-          <Link to={"/car/" + record._id}>
+          <Link to={"/brandupdate/" + record._id}>
             <FaRegEdit style={{ width: "20px", height: "20px" }}></FaRegEdit>
           </Link>
           <MdDelete
@@ -166,7 +140,7 @@ const CarList = () => {
         </Space>
       ),
     },
-  ];
+  ]
 
   return (
     <div className="home">
@@ -178,23 +152,9 @@ const CarList = () => {
             style={{ width: 300 }}
           />
         </div>
-        <div className="filters" style={{ marginLeft: '50px' }}>
-          <Form layout="inline">
-            <Form.Item label="Filter by Color">
-              <Select defaultValue="all" onChange={handleColorChange} style={{ width: 120 }}>
-                <Option value="all">All</Option>
-                <Option value="Black">Black</Option>
-                <Option value="White">White</Option>
-                <Option value="Green">Green</Option>
-                <Option value="Blue">Blue</Option>
-                <Option value="Red">Red</Option>
-              </Select>
-            </Form.Item>
-          </Form>
-        </div>
         <div className="addbtn">
           <Button type="primary">
-            <Link to="/newCar">+ Add Car</Link>
+            <Link to="/newbrand">+ Add New Brand</Link>
           </Button>
         </div>
       </div>
@@ -215,10 +175,10 @@ const CarList = () => {
         okText="OK"
         cancelText="Cancel"
       >
-        <p>Are you sure you want to delete this car?</p>
+        <p>Are you sure you want to delete this brand?</p>
       </Modal>
     </div>
   );
 };
 
-export default CarList;
+export default BrandList;

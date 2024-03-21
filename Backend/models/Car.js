@@ -23,6 +23,10 @@ const carSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
+  varient: {
+    type: String, // Assuming you will store the image path
+    required: true
+  },
   image: {
     type: String, // Assuming you will store the image path
     required: true

@@ -108,18 +108,20 @@ const DriverList = () => {
     setFilteredData(filteredData);
   };
 
+
   const handleActiveChange = async (id, active) => {
     try {
-      const response = await fetch(`http://localhost:5500/Active/${id}`, {
+      const response = await fetch(`http://localhost:5500/ActiveDriver/${id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ active }),
+        body: JSON.stringify({ active }), // Send the current switch state as true or false
       });
       if (!response.ok) {
         throw new Error("Failed to update active state");
       }
+      // If the update is successful, update the data by refetching
       fetchData();
     } catch (error) {
       console.error("Error updating active state:", error);
@@ -184,7 +186,6 @@ const DriverList = () => {
         return moment(record.timeTemps).isSameOrAfter(value, "day");
       },
     },
-
     {
       title: 'Active',
       dataIndex: 'active',

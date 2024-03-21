@@ -9,7 +9,8 @@ const Cors = require("cors");
 const bodyParser = require('body-parser');
 const multer = require("multer");
 const path = require("path");
-
+const Brand = require("./models/Brand")
+const Varient = require("./models/Varient")
 const app = express();
 
 app.use(express.json());
@@ -440,7 +441,54 @@ app.patch('/ActiveDriver/:id', async (req, res) => {
     }
 });
 
+//add car image api
+// Endpoint to handle image upload along with other fields
+const storagecar = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'CarImage/'); // Specify the directory where uploaded files will be stored
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix =
+            Date.now() + '-' + Math.round(Math.random() * 1e9) + file.originalname.slice(-4); // Append a unique suffix to the filename
+        cb(null, uniqueSuffix); // Generate a unique filename for the uploaded file
+    }
+});
 
+const uploadCar = multer({ storage: storagecar });
+
+app.post('/Addcar', uploadCar.single('image'), async (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    try {
+        // Extract car data from the request body
+        const { model, brand, varient, year, color, price, registrationDate } = req.body;
+
+        // Validate required fields
+        if (!model || !brand || !varient || !year || !color || !price || !registrationDate) {
+            return res.status(400).json({ error: 'Missing required fields' });
+        }
+
+        // Save the file path and other car data to the database
+        const newCar = new Car({
+            model,
+            brand,
+            varient,
+            year,
+            color,
+            price,
+            registrationDate,
+            image: req.file.path // Assuming req.file.path contains the path to the uploaded image
+        });
+
+        await newCar.save();
+        res.json({ message: 'Car details and image uploaded successfully', car: newCar });
+    } catch (error) {
+        console.error("Error saving car details and file path to database:", error);
+        res.status(500).json({ error: 'Failed to save car details and file path to database' });
+    }
+});
 //get car api 
 app.get("/Car", async (req, res) => {
     try {
@@ -513,8 +561,6 @@ app.put("/UpdateCar/:id", uploadup.single("image"), async (req, res) => {
     }
 });
 
-
-
 //search api car
 app.get('/searchCar/:key', async (req, res) => {
     try {
@@ -534,51 +580,162 @@ app.get('/searchCar/:key', async (req, res) => {
     }
 });
 
-//add car image api
-// Endpoint to handle image upload along with other fields
-const storagecar = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'CarImage/'); // Specify the directory where uploaded files will be stored
-    },
-    filename: function (req, file, cb) {
-        const uniqueSuffix =
-            Date.now() + '-' + Math.round(Math.random() * 1e9) + file.originalname.slice(-4); // Append a unique suffix to the filename
-        cb(null, uniqueSuffix); // Generate a unique filename for the uploaded file
+//new brand add api
+app.post("/AddBrand", async (req, res) => {
+    try {
+        const { brand, description } = req.body;
+        // Validate input
+        if (!brand || !description) {
+            return res.status(400).json({ error: "Brand and description are required" });
+        }
+        // Create a new brand document
+        const newBrand = new Brand({ brand, description });
+        // Save the brand to the database
+        await newBrand.save();
+        // Send a success response
+        res.status(201).json({ message: "Brand added successfully", brand: newBrand });
+    } catch (error) {
+        console.error("Error adding brand:", error);
+        res.status(500).json({ error: "Failed to add brand" });
     }
 });
 
-const uploadCar = multer({ storage: storagecar });
-
-app.post('/Addcar', uploadCar.single('image'), async (req, res) => {
-    if (!req.file) {
-        return res.status(400).json({ error: 'No file uploaded' });
-    }
-
+//brands get api
+app.get("/brands", async (req, res) => {
     try {
-        // Extract car data from the request body
-        const { model, brand, year, color, price, registrationDate } = req.body;
+        // Retrieve all brands from the database
+        const brands = await Brand.find().sort({ timeTemps: -1 });
 
-        // Validate required fields
-        if (!model || !brand || !year || !color || !price || !registrationDate) {
-            return res.status(400).json({ error: 'Missing required fields' });
-        }
-
-        // Save the file path and other car data to the database
-        const newCar = new Car({
-            model,
-            brand,
-            year,
-            color,
-            price,
-            registrationDate,
-            image: req.file.path // Assuming req.file.path contains the path to the uploaded image
-        });
-
-        await newCar.save();
-        res.json({ message: 'Car details and image uploaded successfully', car: newCar });
+        // Send the brands as a JSON response
+        res.json(brands);
     } catch (error) {
-        console.error("Error saving car details and file path to database:", error);
-        res.status(500).json({ error: 'Failed to save car details and file path to database' });
+        console.error("Error fetching brands:", error);
+        res.status(500).json({ error: "Failed to fetch brands" });
+    }
+});
+
+//brand search api 
+app.get('/searchBrand/:key', async (req, res) => {
+    try {
+        const { key } = req.params;
+        // Perform  match the search value
+        const filteredCars = await Brand.find({
+            $or: [
+                { brand: { $regex: new RegExp(key, 'i') } },
+
+            ]
+        });
+        res.json(filteredCars);
+    } catch (error) {
+        console.error("Error searching brand:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+//brand delete api
+app.delete("/Brand/:_id", async (req, resp) => {
+    const result = await Brand.deleteOne({ _id: req.params._id })
+    resp.send(result);
+});
+
+//brand update api 
+app.get("/BrandUpdate/:_id", async (req, resp) => {
+    const result = await Brand.findOne({ _id: req.params._id })
+    if (result) {
+        resp.send(result);
+    } else {
+        resp.send({ result: "No Record Found" })
+    }
+});
+
+app.put("/BrandUpdate/:_id", async (req, resp) => {
+    try {
+        const result = await Brand.updateOne(
+            { _id: req.params._id }, // Filter to find the document with the given _id
+            { $set: req.body } // Update with the data from req.body
+        );
+        resp.send(result);
+    } catch (error) {
+        resp.status(500).send(error);
+    }
+});
+
+//add varient api
+app.post("/AddVarient", async (req, res) => {
+    try {
+        const { varient, description } = req.body;
+        // Validate input
+        if (!varient || !description) {
+            return res.status(400).json({ error: "Varient and description are required" });
+        }
+        // Create a new varient document
+        const newVarient = new Varient({ varient, description });
+        // Save the varient to the database
+        await newVarient.save();
+        // Send a success response
+        res.status(201).json({ message: "varient added successfully", varient: newVarient });
+    } catch (error) {
+        console.error("Error adding varient:", error);
+        res.status(500).json({ error: "Failed to add varient" });
+    }
+});
+
+//get varient api 
+app.get("/varients", async (req, res) => {
+    try {
+        // Retrieve all varients from the database
+        const varients = await Varient.find().sort({ timeTemps: -1 });
+
+        // Send the varients as a JSON response
+        res.json(varients);
+    } catch (error) {
+        console.error("Error fetching varients:", error);
+        res.status(500).json({ error: "Failed to fetch varients" });
+    }
+});
+
+//search varient api 
+app.get('/searchVarient/:key', async (req, res) => {
+    try {
+        const { key } = req.params;
+        // Perform  match the search value
+        const filteredCars = await Varient.find({
+            $or: [
+                { varient: { $regex: new RegExp(key, 'i') } },
+
+            ]
+        });
+        res.json(filteredCars);
+    } catch (error) {
+        console.error("Error searching varient:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+//varient dalete api
+app.delete("/Varient/:_id", async (req, resp) => {
+    const result = await Varient.deleteOne({ _id: req.params._id })
+    resp.send(result);
+});
+//varinet update api 
+app.get("/VarientUpdate/:_id", async (req, resp) => {
+    const result = await Varient.findOne({ _id: req.params._id })
+    if (result) {
+        resp.send(result);
+    } else {
+        resp.send({ result: "No Record Found" })
+    }
+});
+
+app.put("/VarientUpdate/:_id", async (req, resp) => {
+    try {
+        const result = await Varient.updateOne(
+            { _id: req.params._id }, // Filter to find the document with the given _id
+            { $set: req.body } // Update with the data from req.body
+        );
+        resp.send(result);
+    } catch (error) {
+        resp.status(500).send(error);
     }
 });
 

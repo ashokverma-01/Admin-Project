@@ -1,9 +1,11 @@
-import React, { useState } from "react";
-import { Form, Input, Button, DatePicker, message, Row, Col, Upload } from "antd";
+import React, { useState, useEffect } from "react";
+import { Form, Input, Button, DatePicker, message, Row, Col, Upload, Select } from "antd";
 import moment from "moment";
 import "./newCar.scss";
 import { useNavigate } from "react-router-dom";
 import { UploadOutlined } from '@ant-design/icons';
+
+const { Option } = Select;
 
 const NewCar = () => {
   const [form] = Form.useForm();
@@ -11,6 +13,7 @@ const NewCar = () => {
   const [formData, setFormData] = useState({
     model: "",
     brand: "",
+    varient: "",
     year: "",
     color: "",
     price: "",
@@ -18,11 +21,15 @@ const NewCar = () => {
     image: [] // Initialize image as an empty array
   });
 
+  const [brands, setBrands] = useState([]);
+  const [varients, setVarients] = useState([]);
+
   const handleSubmit = async () => {
     try {
       const formDataToSubmit = new FormData();
       formDataToSubmit.append("model", formData.model);
       formDataToSubmit.append("brand", formData.brand);
+      formDataToSubmit.append("varient", formData.varient);
       formDataToSubmit.append("year", formData.year);
       formDataToSubmit.append("color", formData.color);
       formDataToSubmit.append("price", formData.price);
@@ -47,12 +54,46 @@ const NewCar = () => {
     }
   };
 
+  useEffect(() => {
+    // Fetch brands from the backend API when the component mounts
+    fetchBrands();
+  }, []);
+  const fetchBrands = async () => {
+    try {
+      const response = await fetch("http://localhost:5500/brands");
+      if (!response.ok) {
+        throw new Error("Failed to fetch brands");
+      }
+      const data = await response.json();
+      setBrands(data);
+    } catch (error) {
+      console.error("Error fetching brands:", error);
+      message.error("Failed to fetch brands");
+    }
+  };
+  useEffect(() => {
+    // Fetch brands from the backend API when the component mounts
+    fetchVarients();
+  }, []);
+  const fetchVarients = async () => {
+    try {
+      const response = await fetch("http://localhost:5500/varients");
+      if (!response.ok) {
+        throw new Error("Failed to fetch varients");
+      }
+      const data = await response.json();
+      setVarients(data);
+    } catch (error) {
+      console.error("Error fetching varients:", error);
+      message.error("Failed to fetch varients");
+    }
+  };
   const handleFormChange = (changedValues, allValues) => {
     setFormData(allValues);
   };
 
   return (
-    <div className="new-car-form-container">
+    <div className="form-container">
       <Form
         form={form}
         layout="vertical"
@@ -60,6 +101,7 @@ const NewCar = () => {
         initialValues={formData}
         onValuesChange={handleFormChange}
       >
+        <h1>Add New Car</h1>
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
@@ -72,11 +114,17 @@ const NewCar = () => {
           </Col>
           <Col span={12}>
             <Form.Item
-              label="Brand"
+              label="Brands"
               name="brand"
-              rules={[{ required: true, message: "Please enter brand" }]}
+              rules={[{ required: true, message: "Please select brand" }]}
             >
-              <Input />
+              <Select>
+                {brands.map((brand) => (
+                  <Option key={brand._id} value={brand.brand}>
+                    {brand.brand}
+                  </Option>
+                ))}
+              </Select>
             </Form.Item>
           </Col>
         </Row>
@@ -91,7 +139,11 @@ const NewCar = () => {
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item label="Color" name="color">
+            <Form.Item
+              label="Color"
+              name="color"
+              rules={[{ required: true, message: "Please enter year" }]}
+            >
               <Input />
             </Form.Item>
           </Col>
@@ -119,7 +171,7 @@ const NewCar = () => {
           </Col>
         </Row>
         <Row gutter={16}>
-          <Col span={24}>
+          <Col span={12}>
             <Form.Item
               label="Image"
               name="image"
@@ -130,6 +182,21 @@ const NewCar = () => {
               <Upload beforeUpload={() => false}>
                 <Button icon={<UploadOutlined />}>Click to Upload</Button>
               </Upload>
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              label="Varients"
+              name="varient"
+              rules={[{ required: true, message: "Please select varient" }]}
+            >
+              <Select>
+                {varients.map((varient) => (
+                  <Option key={varient._id} value={varient.varient}>
+                    {varient.varient}
+                  </Option>
+                ))}
+              </Select>
             </Form.Item>
           </Col>
         </Row>

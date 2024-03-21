@@ -15,6 +15,12 @@ import Login from "./Pages/Login";
 import ChangePassword from "./Pages/ChangePassword"
 import Protected from "./Pages/Protected";
 import Layout from "./Pages/Layout";
+import Brand from "./Pages/Brand/Brand"
+import NewBrand from "./Pages/NewBrand/NewBrand"
+import Brandupdate from "./Pages/BrandUpdate/Brandupdate"
+import Varient from "./Pages/Varient/Varient"
+import NewVarient from "./Pages/NewVarient/NewVarient"
+import VarientUpdate from "./Pages/VarientUpdate/VarientUpdate"
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -35,6 +41,12 @@ function App() {
           <Route exact path="/drivers" element={<DriverList />} />
           <Route exact path="/driver/:id" element={<Driver />} />
           <Route exact path="/newDriver" element={<NewDriver />} />
+          <Route exact path="/brands" element={<Brand />} />
+          <Route exact path="/newbrand" element={<NewBrand />} />
+          <Route exact path="/brandupdate/:id" element={<Brandupdate />} />
+          <Route exact path="/varients" element={<Varient />} />
+          <Route exact path="/newVarient" element={<NewVarient />} />
+          <Route exact path="/varientUpdate/:id" element={<VarientUpdate />} />
         </Route>
       </Routes>
 

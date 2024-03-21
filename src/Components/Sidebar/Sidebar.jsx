@@ -39,13 +39,31 @@ const Sidebar = () => {
                             <span className="nav-text" style={{ marginLeft: '10px' }}>Users</span>
                         </Link>
                     </Menu.Item>
-                
+                    <Menu.SubMenu
+                        key="cars"
+                        title={
+                            <span>
+                                <FaCarSide className='sidebarIcons' />
+                                <span className="nav-text" style={{ marginLeft: '10px' }}>Cars</span>
+                            </span>
+                        }
+                    >
+                        <Menu.Item key="/brands">
+                            <Link to='/brands' className='link'>
+                                <span className="nav-text" style={{ marginLeft: '10px' }}>Brands</span>
+                            </Link>
+                        </Menu.Item>
+                        <Menu.Item key="/varients">
+                            <Link to='/varients' className='link'>
+                                <span className="nav-text" style={{ marginLeft: '10px' }}>Varients</span>
+                            </Link>
+                        </Menu.Item>
                         <Menu.Item key="/cars">
                             <Link to='/cars' className='link'>
-                                <FaCarSide className='sidebarIcons' />
                                 <span className="nav-text" style={{ marginLeft: '10px' }}>Cars</span>
                             </Link>
                         </Menu.Item>
+                    </Menu.SubMenu>
                     <Menu.Item key="/drivers">
                         <Link to='/drivers' className='link'>
                             <FaPeopleRoof className='sidebarIcons' />

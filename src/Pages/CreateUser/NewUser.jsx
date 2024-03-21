@@ -99,8 +99,6 @@ const Addusers = () => {
                             />
                         </Form.Item>
                     </Col>
-                </Row>
-                <Row gutter={16}>
                     <Col span={12}>
                         <Form.Item
                             label="Email"
@@ -164,8 +162,6 @@ const Addusers = () => {
                             </Select>
                         </Form.Item>
                     </Col>
-                </Row>
-                <Row gutter={16}>
                     <Col span={12}>
                         <Form.Item
                             label="Phone Number"

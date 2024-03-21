@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Form, Input, Button, Row, Col, Upload, message } from "antd";
+import { Form, Input, Button, Row, Col, Upload, message, Select } from "antd";
 import { useParams, useNavigate } from 'react-router-dom';
 import { UploadOutlined } from '@ant-design/icons';
 
+const { Option } = Select;
+
 const CarUpdate = () => {
   const [model, setModel] = useState("");
-  const [brand, setBrand] = useState("");
+  const [brand, setBrand] = useState([]);
+  const [varient, setVarient] = useState([]);
   const [year, setYear] = useState("");
   const [color, setColor] = useState("");
   const [price, setPrice] = useState("");
@@ -17,6 +20,7 @@ const CarUpdate = () => {
 
   useEffect(() => {
     fetchData();
+    fetchBrands();
   }, []);
 
   const fetchData = async () => {
@@ -28,6 +32,7 @@ const CarUpdate = () => {
       result = await result.json();
       setModel(result.model);
       setBrand(result.brand);
+      setVarient(result.varient);
       setYear(result.year);
       setColor(result.color);
       setPrice(result.price);
@@ -39,11 +44,45 @@ const CarUpdate = () => {
     }
   };
 
+  const fetchBrands = async () => {
+    try {
+      const response = await fetch("http://localhost:5500/brands");
+      if (!response.ok) {
+        throw new Error("Failed to fetch brands");
+      }
+      const data = await response.json();
+      setBrand(data);
+    } catch (error) {
+      console.error("Error fetching brands:", error);
+      message.error("Failed to fetch brands");
+    }
+  };
+
+
+  useEffect(() => {
+    // Fetch brands from the backend API when the component mounts
+    fetchVarients();
+  }, []);
+  const fetchVarients = async () => {
+    try {
+      const response = await fetch("http://localhost:5500/varients");
+      if (!response.ok) {
+        throw new Error("Failed to fetch varients");
+      }
+      const data = await response.json();
+      setVarient(data);
+    } catch (error) {
+      console.error("Error fetching varients:", error);
+      message.error("Failed to fetch varients");
+    }
+  };
+
   const handleUpdate = async () => {
     try {
       const formData = new FormData();
       formData.append("model", model);
       formData.append("brand", brand);
+      formData.append("varient", varient);
       formData.append("year", year);
       formData.append("color", color);
       formData.append("price", price);
@@ -89,7 +128,17 @@ const CarUpdate = () => {
           </Col>
           <Col span={12}>
             <Form.Item label="Brand" initialValue={brand}>
-              <Input className="input-field" value={brand} onChange={e => setBrand(e.target.value)} />
+              <Select
+                className="input-field"
+                value={brand}
+                onChange={(value) => setBrand(value)}
+              >
+                {brand.map(brand => (
+                  <Option key={brand._id} value={brand.brand}>
+                    {brand.brand}
+                  </Option>
+                ))}
+              </Select>
             </Form.Item>
           </Col>
           <Col span={12}>
@@ -122,6 +171,21 @@ const CarUpdate = () => {
               <Upload beforeUpload={() => false}>
                 <Button icon={<UploadOutlined />}>Click to Upload</Button>
               </Upload>
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item label="Varient" initialValue={varient}>
+              <Select
+                className="input-field"
+                value={varient}
+                onChange={(value) => setVarient(value)}
+              >
+                {varient.map(varient => (
+                  <Option key={varient._id} value={varient.varient}>
+                    {varient.varient}
+                  </Option>
+                ))}
+              </Select>
             </Form.Item>
           </Col>
         </Row>
