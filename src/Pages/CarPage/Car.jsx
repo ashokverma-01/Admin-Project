@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Form, Input, Button, Row, Col, Upload, message, Select } from "antd";
+import { Form, Input, Button, Row, Col, message, Select } from "antd";
 import { useParams, useNavigate } from 'react-router-dom';
-import { UploadOutlined } from '@ant-design/icons';
 
 const { Option } = Select;
 
@@ -13,7 +12,7 @@ const CarUpdate = () => {
   const [color, setColor] = useState("");
   const [price, setPrice] = useState("");
   const [registrationDate, setRegistrationDate] = useState("");
-  const [image, setImage] = useState(null); // Change to null to represent no image selected
+  const [image, setImage] = useState(null);
   const [error, setError] = useState(null);
   const params = useParams();
   const navigate = useNavigate();
@@ -21,6 +20,7 @@ const CarUpdate = () => {
   useEffect(() => {
     fetchData();
     fetchBrands();
+
   }, []);
 
   const fetchData = async () => {
@@ -37,7 +37,6 @@ const CarUpdate = () => {
       setColor(result.color);
       setPrice(result.price);
       setRegistrationDate(result.registrationDate);
-      // Assuming image is stored as URL, set it directly
       setImage(result.image);
     } catch (error) {
       setError(error.message);
@@ -63,6 +62,7 @@ const CarUpdate = () => {
     // Fetch brands from the backend API when the component mounts
     fetchVarients();
   }, []);
+
   const fetchVarients = async () => {
     try {
       const response = await fetch("http://localhost:5500/varients");
@@ -88,7 +88,7 @@ const CarUpdate = () => {
       formData.append("price", price);
       formData.append("registrationDate", registrationDate);
       if (image) {
-        formData.append("image", image); // Append the image file to the formData if it's not null
+        formData.append("image", image);
       }
 
       let result = await fetch(`http://localhost:5500/UpdateCar/${params.id}`, {
@@ -109,12 +109,11 @@ const CarUpdate = () => {
 
   const handleImageChange = (info) => {
     if (info.file.status === 'done') {
-      setImage(info.file.originFileObj); // Store the file object in state
+      setImage(info.file.originFileObj);
     } else if (info.file.status === 'error') {
       setError('Image upload failed');
     }
   };
-
 
   return (
     <div className="form-container">
@@ -162,15 +161,12 @@ const CarUpdate = () => {
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item
-              label="Image"
-              name="image"
-              valuePropName="fileList"
-              getValueFromEvent={handleImageChange}
-            >
-              <Upload beforeUpload={() => false}>
-                <Button icon={<UploadOutlined />}>Click to Upload</Button>
-              </Upload>
+            <Form.Item label="Image">
+              <input
+                type="file"
+                className="form-control"
+                onChange={(e) => { setImage(e.target.files[0]) }}
+              />
             </Form.Item>
           </Col>
           <Col span={12}>
@@ -180,13 +176,14 @@ const CarUpdate = () => {
                 value={varient}
                 onChange={(value) => setVarient(value)}
               >
-                {varient.map(varient => (
-                  <Option key={varient._id} value={varient.varient}>
-                    {varient.varient}
+                {varient.map(variant => (
+                  <Option key={variant._id} value={variant.varient}>
+                    {variant.varient}
                   </Option>
                 ))}
               </Select>
             </Form.Item>
+
           </Col>
         </Row>
         <Form.Item>

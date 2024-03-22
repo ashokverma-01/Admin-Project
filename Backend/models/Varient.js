@@ -1,10 +1,16 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
+
+// Define the Varient schema
 const varientSchema = new mongoose.Schema({
     varient: {
         type: String,
         required: true
     },
-    description: {
+    brand: {
+        type: String,
+        required: true
+    },
+    model: {
         type: String,
         required: true
     },
@@ -15,4 +21,6 @@ const varientSchema = new mongoose.Schema({
 });
 
 // Create a model based on the schema
-module.exports = mongoose.model("varients", varientSchema);
+const Varient = mongoose.model("Varient", varientSchema);
+
+module.exports = Varient;

@@ -11,6 +11,8 @@ const multer = require("multer");
 const path = require("path");
 const Brand = require("./models/Brand")
 const Varient = require("./models/Varient")
+const Model = require("./models/Model");
+const { model } = require("mongoose");
 const app = express();
 
 app.use(express.json());
@@ -138,6 +140,7 @@ app.post('/changePassword', async (req, res) => {
 //adduser api  
 
 app.post('/Adduser', async (req, res) => {
+
     const { firstname, lastname, email, technology, age, gender, phoneNumber, address } = req.body;
 
     try {
@@ -536,8 +539,10 @@ const storageup = multer.diskStorage({
 const uploadup = multer({ dest: 'uploads/' });
 app.put("/UpdateCar/:id", uploadup.single("image"), async (req, res) => {
     try {
+
         const { model, brand, year, color, price, registrationDate } = req.body;
-        const imagePath = req.file ? req.file.path : null; // Store the image path if uploaded
+        const imagePath = req.file ? req.file.path : null;
+        // Store the image path if uploaded
 
         // Update the car data in the database using Mongoose
         const updatedCar = await Car.findByIdAndUpdate(req.params.id, {
@@ -553,8 +558,9 @@ app.put("/UpdateCar/:id", uploadup.single("image"), async (req, res) => {
         if (!updatedCar) {
             return res.status(404).json({ error: "Car not found" });
         }
-
-        res.json({ success: true, message: "Car data updated successfully", updatedCar });
+        else {
+            res.json({ success: true, message: "Car data updated successfully", updatedCar });
+        }
     } catch (error) {
         console.error("Error updating car data:", error);
         res.status(500).json({ error: "Failed to update car data" });
@@ -660,26 +666,87 @@ app.put("/BrandUpdate/:_id", async (req, resp) => {
     }
 });
 
-//add varient api
-app.post("/AddVarient", async (req, res) => {
+//add model api
+app.post("/AddModel", async (req, res) => {
     try {
-        const { varient, description } = req.body;
+        const { model, brand } = req.body;
         // Validate input
-        if (!varient || !description) {
-            return res.status(400).json({ error: "Varient and description are required" });
+        if (!model || !brand) {
+            return res.status(400).json({ error: "model and description are required" });
         }
-        // Create a new varient document
-        const newVarient = new Varient({ varient, description });
-        // Save the varient to the database
-        await newVarient.save();
+        // Create a new model document
+        const newModel = new Model({ model, brand });
+        // Save the model to the database
+        await newModel.save();
         // Send a success response
-        res.status(201).json({ message: "varient added successfully", varient: newVarient });
+        res.status(201).json({ message: "model added successfully", model: newModel });
     } catch (error) {
         console.error("Error adding varient:", error);
-        res.status(500).json({ error: "Failed to add varient" });
+        res.status(500).json({ error: "Failed to add model" });
     }
 });
 
+//get models api
+app.get("/models", async (req, res) => {
+    try {
+        // Retrieve all models from the database
+        const models = await Model.find().sort({ timeTemps: -1 });
+
+        // Send the models as a JSON response
+        res.json(models);
+    } catch (error) {
+        console.error("Error fetchingmodels:", error);
+        res.status(500).json({ error: "Failed to fetch models" });
+    }
+});
+
+//model update api 
+app.get("/UpdateModel/:_id", async (req, resp) => {
+    const result = await Model.findOne({ _id: req.params._id })
+    if (result) {
+        resp.send(result);
+    } else {
+        resp.send({ result: "No Record Found" })
+    }
+});
+
+app.put('/UpdateModel/:id', async (req, res) => {
+    const { model, brand } = req.body;
+    const { id } = req.params;
+
+    try {
+        // Find the model by id
+        const updatedModel = await Model.findByIdAndUpdate(id, { model, brand }, { new: true });
+
+        if (!updatedModel) {
+            return res.status(404).json({ error: "Model not found" });
+        }
+
+        res.json({ success: true, message: "Model data updated successfully", updatedModel });
+    } catch (error) {
+        console.error("Error updating model data:", error);
+        res.status(500).json({ error: "Failed to update model data" });
+    }
+});
+
+//delete model api
+app.delete("/Model/:_id", async (req, resp) => {
+    const result = await Model.deleteOne({ _id: req.params._id })
+    resp.send(result);
+});
+
+//add varient api
+app.post('/AddVarient', async (req, res) => {
+    try {
+        const { varient, brand, model } = req.body;
+        const newVariant = new Varient({ varient, brand, model });
+        await newVariant.save();
+        res.status(201).json({ message: 'Variant added successfully' });
+    } catch (error) {
+        console.error('Error adding variant:', error);
+        res.status(500).json({ error: 'Failed to add variant' });
+    }
+});
 //get varient api 
 app.get("/varients", async (req, res) => {
     try {

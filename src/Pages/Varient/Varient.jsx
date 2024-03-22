@@ -99,9 +99,9 @@ const VarientList = () => {
             key: "varient",
         },
         {
-            title: "Description",
-            dataIndex: "description",
-            key: "description",
+            title: "Brands",
+            dataIndex: "brand",
+            key: "brand",
         },
         {
             title: "Date",

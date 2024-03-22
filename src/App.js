@@ -21,6 +21,9 @@ import Brandupdate from "./Pages/BrandUpdate/Brandupdate"
 import Varient from "./Pages/Varient/Varient"
 import NewVarient from "./Pages/NewVarient/NewVarient"
 import VarientUpdate from "./Pages/VarientUpdate/VarientUpdate"
+import Model from "./Pages/Model/Model"
+import NewModel from "./Pages/NewModel/NewModel"
+import UpdateModel from "./Pages/UpdateModel/UpdateModel"
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -47,6 +50,9 @@ function App() {
           <Route exact path="/varients" element={<Varient />} />
           <Route exact path="/newVarient" element={<NewVarient />} />
           <Route exact path="/varientUpdate/:id" element={<VarientUpdate />} />
+          <Route exact path="/model" element={<Model />} />
+          <Route exact path="/newModel" element={<NewModel />} />
+          <Route exact path="/UpdateModel/:id" element={<UpdateModel />} />
         </Route>
       </Routes>
 

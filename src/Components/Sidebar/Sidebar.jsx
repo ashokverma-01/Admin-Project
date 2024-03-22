@@ -53,6 +53,11 @@ const Sidebar = () => {
                                 <span className="nav-text" style={{ marginLeft: '10px' }}>Brands</span>
                             </Link>
                         </Menu.Item>
+                        <Menu.Item key="/model">
+                            <Link to='/model' className='link'>
+                                <span className="nav-text" style={{ marginLeft: '10px' }}>Models</span>
+                            </Link>
+                        </Menu.Item>
                         <Menu.Item key="/varients">
                             <Link to='/varients' className='link'>
                                 <span className="nav-text" style={{ marginLeft: '10px' }}>Varients</span>
