@@ -21,6 +21,6 @@ const varientSchema = new mongoose.Schema({
 });
 
 // Create a model based on the schema
-const Varient = mongoose.model("Varient", varientSchema);
+const Varient = mongoose.model("varients", varientSchema);
 
 module.exports = Varient;

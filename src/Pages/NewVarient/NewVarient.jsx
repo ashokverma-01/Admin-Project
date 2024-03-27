@@ -4,15 +4,14 @@ import { useNavigate } from "react-router-dom";
 import "./NewVarient.scss";
 
 const NewVarient = () => {
-    const [error, setError] = useState(null);
     const [form] = Form.useForm();
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         varient: "",
-        brand: [],
-        model: "",
+        brand: [], // This will hold the selected brand and model as an array [brand, model]
     });
     const [options, setOptions] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         fetchDataFrom();
@@ -20,14 +19,11 @@ const NewVarient = () => {
 
     const fetchDataFrom = async () => {
         try {
-            // Fetch data from your backend API
             const response = await fetch("http://localhost:5500/models");
             if (!response.ok) {
                 throw new Error("Failed to fetch data");
             }
             const data = await response.json();
-
-            // Format data for Cascader options
             const formattedData = data.map((item) => ({
                 value: item.brand,
                 label: item.brand,
@@ -38,22 +34,21 @@ const NewVarient = () => {
                     },
                 ],
             }));
-
-            // Set the formatted data to the options state
             setOptions(formattedData);
         } catch (error) {
             console.error("Error fetching data:", error);
+            message.error("Failed to fetch data");
         }
     };
 
     const handleSubmit = async () => {
         try {
+            setLoading(true);
             const formDataToSubmit = {
                 varient: formData.varient,
                 brand: formData.brand[0],
                 model: formData.brand[1],
             };
-
             const response = await fetch("http://localhost:5500/AddVarient", {
                 method: "POST",
                 headers: {
@@ -72,11 +67,13 @@ const NewVarient = () => {
         } catch (error) {
             console.error("Error:", error);
             message.error("Failed to add varient");
+        } finally {
+            setLoading(false);
         }
     };
 
     const handleFormChange = (changedValues, allValues) => {
-        setFormData(allValues);
+        setFormData({ ...formData, ...allValues });
     };
 
     return (
@@ -88,22 +85,23 @@ const NewVarient = () => {
                 initialValues={formData}
                 onValuesChange={handleFormChange}
             >
-                <h1 className="form-title">Add New Varient</h1>
+                <h1 className="form-title">Add New Variant</h1>
                 <Row gutter={16}>
                     <Col span={12}>
                         <Form.Item
-                            label="Varient Name"
+                            label="Variant Name"
                             name="varient"
-                            rules={[{ required: true, message: "Please enter varient" }]}
+                            rules={[{ required: true, message: "Please enter variant" }]}
                         >
                             <Input />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
-                        <Form.Item label="Brands">
+                        <Form.Item label="Brands / Models">
                             <Cascader
                                 options={options}
                                 placeholder="Please select"
+                                onChange={(value) => setFormData({ ...formData, brand: value })}
                             />
                         </Form.Item>
                     </Col>
@@ -111,7 +109,7 @@ const NewVarient = () => {
                 <Row>
                     <Col span={24}>
                         <Form.Item>
-                            <Button className="submit-btn2" type="primary" htmlType="submit">
+                            <Button className="submit-btn2" type="primary" htmlType="submit" loading={loading}>
                                 Submit
                             </Button>
                         </Form.Item>

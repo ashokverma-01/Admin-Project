@@ -445,7 +445,6 @@ app.patch('/ActiveDriver/:id', async (req, res) => {
 });
 
 //add car image api
-// Endpoint to handle image upload along with other fields
 const storagecar = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, 'CarImage/'); // Specify the directory where uploaded files will be stored
@@ -735,15 +734,21 @@ app.delete("/Model/:_id", async (req, resp) => {
     resp.send(result);
 });
 
-//add varient api
+//add  varient api
+
 app.post('/AddVarient', async (req, res) => {
     try {
         const { varient, brand, model } = req.body;
+
+        // Create a new variant document
         const newVariant = new Varient({ varient, brand, model });
+
+        // Save the variant to the database
         await newVariant.save();
-        res.status(201).json({ message: 'Variant added successfully' });
+
+        res.status(200).json({ message: 'Variant added successfully' });
     } catch (error) {
-        console.error('Error adding variant:', error);
+        console.error('Error:', error);
         res.status(500).json({ error: 'Failed to add variant' });
     }
 });
@@ -760,6 +765,7 @@ app.get("/varients", async (req, res) => {
         res.status(500).json({ error: "Failed to fetch varients" });
     }
 });
+
 
 //search varient api 
 app.get('/searchVarient/:key', async (req, res) => {
@@ -785,7 +791,7 @@ app.delete("/Varient/:_id", async (req, resp) => {
     resp.send(result);
 });
 //varinet update api 
-app.get("/VarientUpdate/:_id", async (req, resp) => {
+app.get("/varientUpdate/:_id", async (req, resp) => {
     const result = await Varient.findOne({ _id: req.params._id })
     if (result) {
         resp.send(result);
@@ -794,15 +800,33 @@ app.get("/VarientUpdate/:_id", async (req, resp) => {
     }
 });
 
-app.put("/VarientUpdate/:_id", async (req, resp) => {
+app.put('/varientUpdate/:id', async (req, res) => {
+    const { id } = req.params; // Extract variant ID from request parameters
+    const { varient, brand, model } = req.body; // Extract updated variant data from request body
+
     try {
-        const result = await Varient.updateOne(
-            { _id: req.params._id }, // Filter to find the document with the given _id
-            { $set: req.body } // Update with the data from req.body
-        );
-        resp.send(result);
+        // Find the variant by ID in the database
+        const variant = await Varient.findById(id);
+
+        if (!variant) {
+            // Variant not found, return 404 error
+            return res.status(404).json({ error: "Variant not found" });
+        }
+
+        // Update the variant fields
+        variant.varient = varient;
+        variant.brand = brand;
+        variant.model = model;
+
+        // Save the updated variant
+        await variant.save();
+
+        // Return success response
+        return res.status(200).json({ message: "Variant updated successfully", variant });
     } catch (error) {
-        resp.status(500).send(error);
+        // Handle any errors and return error response
+        console.error("Error updating variant:", error);
+        return res.status(500).json({ error: "Failed to update variant" });
     }
 });
 

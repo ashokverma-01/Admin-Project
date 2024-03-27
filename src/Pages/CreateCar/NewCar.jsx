@@ -13,7 +13,7 @@ const NewCar = () => {
   const [formData, setFormData] = useState({
     model: "",
     brand: "",
-    varient: "",
+    varient: [],
     year: "",
     color: "",
     price: "",
@@ -22,6 +22,7 @@ const NewCar = () => {
   });
 
   const [brands, setBrands] = useState([]);
+  const [models, setModels] = useState([]);
   const [varients, setVarients] = useState([]);
 
   const handleSubmit = async () => {
@@ -73,6 +74,24 @@ const NewCar = () => {
   };
   useEffect(() => {
     // Fetch brands from the backend API when the component mounts
+    fetchModels();
+  }, []);
+  const fetchModels = async () => {
+    try {
+      const response = await fetch("http://localhost:5500/models");
+      if (!response.ok) {
+        throw new Error("Failed to fetch brands");
+      }
+      const data = await response.json();
+      setModels(data);
+    } catch (error) {
+      console.error("Error fetching brands:", error);
+      message.error("Failed to fetch brands");
+    }
+  };
+
+  useEffect(() => {
+    // Fetch brands from the backend API when the component mounts
     fetchVarients();
   }, []);
   const fetchVarients = async () => {
@@ -105,15 +124,6 @@ const NewCar = () => {
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
-              label="Car Model"
-              name="model"
-              rules={[{ required: true, message: "Please enter car model" }]}
-            >
-              <Input />
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item
               label="Brands"
               name="brand"
               rules={[{ required: true, message: "Please select brand" }]}
@@ -122,6 +132,22 @@ const NewCar = () => {
                 {brands.map((brand) => (
                   <Option key={brand._id} value={brand.brand}>
                     {brand.brand}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              label="Models"
+              name="model"
+              rules={[{ required: true, message: "Please select brand" }]}
+            >
+              <Select>
+                {models.map((model) => (
+                  <Option key={model._id} value={model.model}>
+                    {model.model}
                   </Option>
                 ))}
               </Select>
@@ -140,11 +166,17 @@ const NewCar = () => {
           </Col>
           <Col span={12}>
             <Form.Item
-              label="Color"
-              name="color"
-              rules={[{ required: true, message: "Please enter year" }]}
+              label="Varients"
+              name="varient"
+              rules={[{ required: true, message: "Please select varient" }]}
             >
-              <Input />
+              <Select>
+                {varients.map((varient) => (
+                  <Option key={varient._id} value={varient.varient}>
+                    {varient.varient}
+                  </Option>
+                ))}
+              </Select>
             </Form.Item>
           </Col>
         </Row>
@@ -160,13 +192,11 @@ const NewCar = () => {
           </Col>
           <Col span={12}>
             <Form.Item
-              label="Registration Date"
-              name="registrationDate"
-              rules={[
-                { required: true, message: "Please select registration date" },
-              ]}
+              label="Color"
+              name="color"
+              rules={[{ required: true, message: "Please enter year" }]}
             >
-              <DatePicker style={{ width: "100%" }} />
+              <Input />
             </Form.Item>
           </Col>
         </Row>
@@ -186,17 +216,13 @@ const NewCar = () => {
           </Col>
           <Col span={12}>
             <Form.Item
-              label="Varients"
-              name="varient"
-              rules={[{ required: true, message: "Please select varient" }]}
+              label="Registration Date"
+              name="registrationDate"
+              rules={[
+                { required: true, message: "Please select registration date" },
+              ]}
             >
-              <Select>
-                {varients.map((varient) => (
-                  <Option key={varient._id} value={varient.varient}>
-                    {varient.varient}
-                  </Option>
-                ))}
-              </Select>
+              <DatePicker style={{ width: "100%" }} />
             </Form.Item>
           </Col>
         </Row>

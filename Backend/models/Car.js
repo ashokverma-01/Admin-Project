@@ -10,6 +10,10 @@ const carSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  varient: {
+    type: String, // Assuming you will store the image path
+    required: true
+  },
   year: {
     type: Number,
     required: true
@@ -25,10 +29,6 @@ const carSchema = new mongoose.Schema({
   registrationDate: {
     type: Date,
     default: Date.now
-  },
-  varient: {
-    type: String, // Assuming you will store the image path
-    required: true
   },
   image: {
     type: String, // Assuming you will store the image path
