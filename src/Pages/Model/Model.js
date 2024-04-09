@@ -4,7 +4,7 @@ import { MdDelete } from "react-icons/md";
 import { Link } from "react-router-dom";
 import { FaRegEdit } from "react-icons/fa";
 import moment from "moment";
-
+import './ModelList.css'
 const { Search } = Input;
 
 const Model = () => {
@@ -40,6 +40,24 @@ const Model = () => {
             console.error("Error fetching data:", error);
         }
     };
+
+    useEffect(() => {
+        fetchDataAll();
+    }, []);
+
+    const fetchDataAll = async () => {
+        try {
+            const response = await fetch("http://localhost:5500/Allmodels");
+            if (!response.ok) {
+                throw new Error("Failed to fetch data");
+            }
+            const jsonData = await response.json();
+            setData(jsonData);
+        } catch (error) {
+            console.error("Error fetching data:", error);
+        }
+    };
+
 
     const searchHandle = async (key) => {
         try {
@@ -99,15 +117,16 @@ const Model = () => {
             key: "model",
         },
         {
-            title: "Brands",
-            dataIndex: "brand",
-            key: "brand",
+            title: 'Brand',
+            dataIndex: 'brand',
+            key: 'brand',
+            render: (brand) => brand.brand, // Assuming 'name' is the property of the brand object you want to display
         },
         {
             title: "Date",
             dataIndex: "timeTemps",
             key: "timeTemps",
-            render: (date) => <span>{moment(date).format("YYYY-MM-DD")}</span>,
+            render: (date) => <span>{moment(date).format("DD-MM-YYYY")}</span>,
             filters: [
                 {
                     text: "Today",
@@ -144,10 +163,10 @@ const Model = () => {
 
     return (
         <div className="home">
-            <div className="top">
+            <div className="top" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div className="search">
                     <Search
-                        placeholder="Input search text"
+                        placeholder="search by model name"
                         onSearch={searchHandle}
                         style={{ width: 300 }}
                     />
@@ -160,6 +179,7 @@ const Model = () => {
             </div>
             <div className="table" style={{ fontFamily: "none" }}>
                 <Table
+                    className="table-container"
                     columns={columns}
                     dataSource={filteredData.length > 0 ? filteredData : data}
                     onChange={handleChange}

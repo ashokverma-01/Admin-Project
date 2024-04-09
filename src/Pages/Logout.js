@@ -3,18 +3,18 @@ import { Popover, Button, Avatar } from "antd";
 import { UserOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import ChangePassword from "./ChangePassword";
-import EditProfile from "./EditProfile"; // Import the ChangePassword component
+import EditProfile from "./EditProfile";
+import axios from 'axios';
 import "./Logout.scss";
 
 const Logout = () => {
     const navigate = useNavigate();
     const [userImage, setUserImage] = useState(null);
     const [userEmail, setUserEmail] = useState("");
-    const [changePasswordVisible, setChangePasswordVisible] = useState(false); // State to control Change Password popover visibility
-    const [editProfileVisible, setEditProfileVisible] = useState(false); // State to control Edit Profile popover visibility
+    const [changePasswordVisible, setChangePasswordVisible] = useState(false);
+    const [editProfileVisible, setEditProfileVisible] = useState(false);
 
     useEffect(() => {
-        // Retrieve user email from local storage
         const userEmailFromStorage = localStorage.getItem("userEmail");
         if (userEmailFromStorage) {
             setUserEmail(userEmailFromStorage);
@@ -22,48 +22,40 @@ const Logout = () => {
     }, []);
 
     useEffect(() => {
-        if (userEmail) {
-            // Function to fetch user's image when userEmail is available
-            async function fetchUserImage() {
-                try {
-                    const response = await fetch(
-                        `http://localhost:5000/user/image?email=${userEmail}`
-                    );
-                    if (!response.ok) {
-                        throw new Error("Failed to fetch user image");
-                    }
-                    const data = await response.json();
-                    setUserImage(data.imageUrl);
-                    localStorage.setItem("userImage", data.imageUrl); // Store the image URL in local storage
-                } catch (error) {
-                    console.error("Error fetching user image:", error);
-                }
+        const fetchUserImage = async () => {
+            try {
+                const response = await axios.get(`http://localhost:5000/user/image?email=${userEmail}`);
+                setUserImage(response.data.imageUrl);
+            } catch (error) {
+                console.error("Error fetching user image:", error);
             }
-            // Fetch user's image
+        };
+        
+        if (userEmail) {
             fetchUserImage();
         }
     }, [userEmail]);
 
     const handleLogout = () => {
         localStorage.removeItem("userEmail");
-        localStorage.removeItem("userImage"); // Remove the image URL from local storage
+        localStorage.removeItem("userImage");
         navigate("/Login");
     };
 
     const handleOpenChangePassword = () => {
-        setChangePasswordVisible(true); // Set state to open the Change Password popover
+        setChangePasswordVisible(true);
     };
 
     const handleCloseChangePassword = () => {
-        setChangePasswordVisible(false); // Set state to close the Change Password popover
+        setChangePasswordVisible(false);
     };
 
     const handleOpenEditProfile = () => {
-        setEditProfileVisible(true); // Set state to open the Edit Profile popover
+        setEditProfileVisible(true);
     };
 
     const handleCloseEditProfile = () => {
-        setEditProfileVisible(false); // Set state to close the Edit Profile popover
+        setEditProfileVisible(false);
     };
 
     return (
@@ -123,7 +115,7 @@ const Logout = () => {
             </Popover>
             {changePasswordVisible && (
                 <Popover
-                    content={<ChangePassword onClose={handleCloseChangePassword} />} // Pass a prop to handle closing the popover
+                    content={<ChangePassword onClose={handleCloseChangePassword} />}
                     title="Change Password"
                     trigger="click"
                     visible={changePasswordVisible}

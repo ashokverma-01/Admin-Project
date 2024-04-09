@@ -2,16 +2,23 @@
 const mongoose = require('mongoose');
 
 const carSchema = new mongoose.Schema({
-  model: {
-    type: String,
-    required: true
-  },
   brand: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId, // Assuming brand is stored as ObjectId
+    ref: 'brands', // Reference to the Brand model
     required: true
   },
-  varient: {
-    type: String, // Assuming you will store the image path
+  model: {
+    type: mongoose.Schema.Types.ObjectId, // Assuming brand is stored as ObjectId
+    ref: 'models', // Reference to the Brand model
+    required: true
+  },
+  variant: {
+    type: mongoose.Schema.Types.ObjectId, // Assuming variant is stored as ObjectId
+    ref: 'varients', // Reference to the Variant model
+    required: true
+  },
+  carName: {
+    type: String,
     required: true
   },
   year: {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import './charts.scss'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { FaCarSide } from "react-icons/fa";
 import {
     LineChart,
     Line,
@@ -19,12 +20,14 @@ import {
 const Dashboard = () => {
     const [totalUsers, setTotalUsers] = useState(0);
     const [totalDrivers, setTotalDrivers] = useState(0);
-    const [totalMaleUsers, setTotalMaleUsers] = useState(0); // State for total male users
+    const [totalPassenger, setTotalPassenger] = useState(0);
+    const [totalCar, setTotalCars] = useState(0); // State for total male users
 
     useEffect(() => {
         fetchTotalUsers();
         fetchTotalDrivers();
-        fetchTotalMaleUsers(); // Fetch total male users count on component mount
+        fetchTotalCar(); 
+        fetchTotalPassenger(); 
     }, []);
 
     const fetchTotalUsers = async () => {
@@ -37,16 +40,6 @@ const Dashboard = () => {
         }
     };
 
-    const fetchTotalMaleUsers = async () => {
-        try {
-            const response = await fetch('http://localhost:5500/api/total-male'); // Assuming this is the endpoint to fetch total male users count
-            const data = await response.json();
-            setTotalMaleUsers(data.totalMaleUsers);
-        } catch (error) {
-            console.error('Error fetching total male users:', error);
-        }
-    };
-
     const fetchTotalDrivers = async () => {
         try {
             const response = await fetch('http://localhost:5500/api/total-drivers');
@@ -54,6 +47,24 @@ const Dashboard = () => {
             setTotalDrivers(data.totalDrivers);
         } catch (error) {
             console.error('Error fetching total users:', error);
+        }
+    };
+    const fetchTotalPassenger = async () => {
+        try {
+            const response = await fetch('http://localhost:5500/api/total-passenger');
+            const data = await response.json();
+            setTotalPassenger(data.totalDrivers);
+        } catch (error) {
+            console.error('Error fetching total passenger:', error);
+        }
+    };
+    const fetchTotalCar = async () => {
+        try {
+            const response = await fetch('http://localhost:5500/api/total-cars');
+            const data = await response.json();
+            setTotalCars(data.totalDrivers);
+        } catch (error) {
+            console.error('Error fetching total car:', error);
         }
     };
 
@@ -76,23 +87,23 @@ const Dashboard = () => {
         <div className="dashboard">
             <div className="grid-container">
                 <div className="grid-item" style={{ backgroundColor: "rgb(245, 53, 171)" }}>
-                    <FontAwesomeIcon icon={faBox} />
+                    <FontAwesomeIcon icon={faUsers} />
                     <p>Total User</p>
                     <h2>{totalUsers}</h2>
                 </div>
                 <div className="grid-item" style={{ backgroundColor: "blue" }}>
                     <FontAwesomeIcon icon={faUser} />
-                    <p>Male User</p>
-                    <h2>{totalMaleUsers}</h2> {/* Display total male users count */}
+                    <p>Passengers</p>
+                    <h2>{totalPassenger}</h2> 
                 </div>
                 <div className="grid-item" style={{ backgroundColor: "green" }}>
-                    <FontAwesomeIcon icon={faUsers} />
-                    <p>Female User</p>
-                    <h2>{totalUsers - totalMaleUsers}</h2> {/* Calculate total female users count */}
+                <FaCarSide  icon={faUsers}  style={{width:'55px',height:'55px'}}/>
+                    <p>Cars</p>
+                    <h2>{ totalCar}</h2>
                 </div>
                 <div className="grid-item" style={{ backgroundColor: "aqua" }}>
                     <FontAwesomeIcon icon={faShoppingCart} />
-                    <p>Total Drivers</p>
+                    <p> Drivers</p>
                     <h2>{totalDrivers}</h2>
                 </div>
             </div>

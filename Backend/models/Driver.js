@@ -13,12 +13,21 @@ const driverSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  email: {
+    type: String,
+    required: true
+  },
   address: {
     type: String,
     required: true
   },
   image: {
     type: String, // Assuming you will store the image path
+    required: true
+  },
+  car: {
+    type: mongoose.Schema.Types.ObjectId, // Assuming variant is stored as ObjectId
+    ref: 'addcars', // Reference to the Variant model
     required: true
   },
   timeTemps: {

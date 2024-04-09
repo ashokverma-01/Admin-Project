@@ -1,26 +1,26 @@
 const mongoose = require("mongoose");
 
-// Define the Varient schema
-const varientSchema = new mongoose.Schema({
-    varient: {
+const variantSchema = new mongoose.Schema({
+    variant: {
         type: String,
         required: true
     },
     brand: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'brands', // Reference to the Brand model
         required: true
     },
     model: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'models', // Reference to the Model model
         required: true
     },
     timeTemps: {
         type: Date,
-        default: Date.now, // Setting the default value to the current date
-    },
+        default: Date.now
+    }
 });
 
-// Create a model based on the schema
-const Varient = mongoose.model("varients", varientSchema);
+const Variant = mongoose.model("varients", variantSchema);
 
-module.exports = Varient;
+module.exports = Variant;

@@ -61,7 +61,7 @@ const UpdateUser = ({ userId }) => {
                 <Row gutter={16}>
                     <Col span={12}>
                         <Form.Item
-                            label="First Name"
+                            label="Name"
                             initialValue={firstname}
 
                         >
@@ -145,7 +145,7 @@ const UpdateUser = ({ userId }) => {
                             <PhoneInput
                                 value={phoneNumber}
                                 country={"india"}
-                                // className="phone-input"
+                                inputStyle={{ width: '100%' }}
                                 onChange={setPhoneNumber} // Corrected onChange handler
                             />
                         </Form.Item>

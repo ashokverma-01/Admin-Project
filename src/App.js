@@ -24,6 +24,22 @@ import VarientUpdate from "./Pages/VarientUpdate/VarientUpdate"
 import Model from "./Pages/Model/Model"
 import NewModel from "./Pages/NewModel/NewModel"
 import UpdateModel from "./Pages/UpdateModel/UpdateModel"
+import PassengerList from "./Pages/PassengerList/PassengerList";
+import PassengerNew from "./Pages/PassengerNew/PassengerNew";
+import PassengerUpdate from "./Pages/PassengerUpdate/PassengerUpdate";
+import HotelList from "./Pages/HotelList/HotelList";
+import HotelNew from "./Pages/HotelNew/HotelNew";
+import HotelUpdate from "./Pages/HotelUpdate/HotelUpdate";
+import DiscountManagerList from "./Pages/DiscountManagerList/DiscountManagerList";
+import DiscountManagerNew from "./Pages/DiscountManagerNew/DiscountManagerNew";
+import DiscountManagerUpdate from "./Pages/DiscountManagerUpdate/DiscountManagerUpdate";
+import NotificationList from "./Pages/NotificationList/NotificationList";
+import NotificationNew from "./Pages/NotificationNew/NotificationNew";
+import BannerList from "./Pages/BannerList/BannerList";
+import BannerNew from "./Pages/BannerNew/BannerNew";
+import BannerUpdate from "./Pages/BannerUpdate/BannerUpdate";
+// import ViewPage from "./Pages/ViewPage/ViewPage";
+
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -53,6 +69,22 @@ function App() {
           <Route exact path="/model" element={<Model />} />
           <Route exact path="/newModel" element={<NewModel />} />
           <Route exact path="/UpdateModel/:id" element={<UpdateModel />} />
+          <Route exact path="/passengerList" element={<PassengerList />} />
+          <Route exact path="/passengerNew" element={<PassengerNew />} />
+          <Route exact path="/passengerUpdate/:id" element={<PassengerUpdate />} />
+          <Route exact path="/hotelList" element={<HotelList />} />
+          <Route exact path="/hotelNew" element={<HotelNew />} />
+          <Route exact path="/hotelUpdate/:id" element={<HotelUpdate />} />
+          <Route exact path="/discountManagerList" element={<DiscountManagerList />} />
+          <Route exact path="/discountManagerNew" element={<DiscountManagerNew />} />
+          <Route exact path="/discountManagerUpdate/:id" element={<DiscountManagerUpdate />} />
+          <Route exact path="/notificationList" element={<NotificationList />} />
+          <Route exact path="/notificationNew" element={<NotificationNew />} />
+          <Route exact path="/bannerList" element={<BannerList />} />
+          <Route exact path="/bannerNew" element={<BannerNew />} />
+          <Route exact path="/bannerUpdate/:id" element={<BannerUpdate />} />
+          {/* <Route exact path="/viewPage" element={<ViewPage />} /> */}
+
         </Route>
       </Routes>
 

@@ -4,11 +4,12 @@
     position: sticky;
     top: 0;
     z-index: 999;
-    background-color: rgb(0, 21, 41);
+    background-color: white;
+    border-bottom: 0.1px solid rgb(231, 228, 228);
 
     .navwrapper {
         height: 100%;
-        padding: 0 20px;
+        padding-right: 20px;
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -18,9 +19,9 @@
 
 
             .logo {
+                display: flex;
                 font-weight: bold;
-                // font-size: 3px;
-                color: rgb(58, 19, 251);
+                color: white;
             }
         }
 

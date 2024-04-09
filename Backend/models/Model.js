@@ -1,11 +1,12 @@
 const mongoose = require('mongoose');
-const varientSchema = new mongoose.Schema({
-    brand: {
+const modelSchema = new mongoose.Schema({
+    model: {
         type: String,
         required: true
     },
-    model: {
-        type: String,
+    brand: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'brands', // Reference to the Brand model data base table name
         required: true
     },
     timeTemps: {
@@ -15,4 +16,4 @@ const varientSchema = new mongoose.Schema({
 });
 
 // Create a model based on the schema
-module.exports = mongoose.model("models", varientSchema);
+module.exports = mongoose.model("models", modelSchema);

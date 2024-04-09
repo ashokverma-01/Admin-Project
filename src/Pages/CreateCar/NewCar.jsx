@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Form, Input, Button, DatePicker, message, Row, Col, Upload, Select } from "antd";
-import moment from "moment";
+import { Form, Input, Button, DatePicker, message, Row, Col, Select, Upload } from "antd";
 import "./newCar.scss";
 import { useNavigate } from "react-router-dom";
 import { UploadOutlined } from '@ant-design/icons';
@@ -8,57 +7,47 @@ import { UploadOutlined } from '@ant-design/icons';
 const { Option } = Select;
 
 const NewCar = () => {
-  const [form] = Form.useForm();
+  const [form] = Form.useForm(); // Initialize form instance
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    model: "",
-    brand: "",
-    varient: [],
-    year: "",
-    color: "",
-    price: "",
-    registrationDate: moment(),
-    image: [] // Initialize image as an empty array
-  });
+  const [formData, setFormData] = useState({}); // Initialize form data state
 
   const [brands, setBrands] = useState([]);
   const [models, setModels] = useState([]);
-  const [varients, setVarients] = useState([]);
+  const [variants, setVariants] = useState([]);
 
-  const handleSubmit = async () => {
+
+  const handleSubmit = async (values) => {
     try {
-      const formDataToSubmit = new FormData();
-      formDataToSubmit.append("model", formData.model);
-      formDataToSubmit.append("brand", formData.brand);
-      formDataToSubmit.append("varient", formData.varient);
-      formDataToSubmit.append("year", formData.year);
-      formDataToSubmit.append("color", formData.color);
-      formDataToSubmit.append("price", formData.price);
-      formDataToSubmit.append("registrationDate", formData.registrationDate.toISOString());
-      formDataToSubmit.append("image", formData.image[0]?.originFileObj); // Access originFileObj of the File object
+      const formData = new FormData();
+      formData.append('modelId', values.model);
+      formData.append('brandId', values.brand);
+      formData.append('variantId', values.variant);
+      formData.append('year', values.year);
+      formData.append('carName', values.carName);
+      formData.append('price', values.price);
+      formData.append('color', values.color);
+      formData.append('registrationDate', values.registrationDate.format('YYYY-MM-DD'));
+      formData.append('image', values.image[0].originFileObj);
 
-      const response = await fetch("http://localhost:5500/Addcar", {
-        method: "POST",
-        body: formDataToSubmit,
+      const response = await fetch('http://localhost:5500/Addcar', {
+        method: 'POST',
+        body: formData,
       });
 
       if (!response.ok) {
-        throw new Error("Failed to add car");
+        throw new Error('Failed to add new car');
       }
 
-      message.success("Car added successfully");
-      form.resetFields();
-      navigate("/cars");
+      message.success('New car added successfully');
+      // Optionally, you can redirect to another page after successful submission
+      navigate('/cars'); // Redirect to the cars page
     } catch (error) {
-      console.error("Error:", error);
-      message.error("Failed to add car");
+      console.error('Submission failed:', error);
+      message.error('Failed to add new car');
     }
   };
 
-  useEffect(() => {
-    // Fetch brands from the backend API when the component mounts
-    fetchBrands();
-  }, []);
+  // Fetch brands from the server
   const fetchBrands = async () => {
     try {
       const response = await fetch("http://localhost:5500/brands");
@@ -72,43 +61,77 @@ const NewCar = () => {
       message.error("Failed to fetch brands");
     }
   };
-  useEffect(() => {
-    // Fetch brands from the backend API when the component mounts
-    fetchModels();
-  }, []);
-  const fetchModels = async () => {
+
+  // Fetch models based on selected brand
+  const fetchModels = async (brandId) => {
     try {
-      const response = await fetch("http://localhost:5500/models");
+      const response = await fetch(`http://localhost:5500/models?brandId=${brandId}`);
       if (!response.ok) {
-        throw new Error("Failed to fetch brands");
+        throw new Error("Failed to fetch models");
       }
       const data = await response.json();
       setModels(data);
     } catch (error) {
-      console.error("Error fetching brands:", error);
-      message.error("Failed to fetch brands");
+      console.error("Error fetching models:", error);
+      message.error("Failed to fetch models");
     }
   };
 
-  useEffect(() => {
-    // Fetch brands from the backend API when the component mounts
-    fetchVarients();
-  }, []);
-  const fetchVarients = async () => {
+  // Fetch variants based on selected model
+  const fetchVariants = async (modelId) => {
     try {
-      const response = await fetch("http://localhost:5500/varients");
+      const response = await fetch(`http://localhost:5500/variants?modelId=${modelId}`);
       if (!response.ok) {
-        throw new Error("Failed to fetch varients");
+        throw new Error("Failed to fetch variants");
       }
       const data = await response.json();
-      setVarients(data);
+      setVariants(data);
     } catch (error) {
-      console.error("Error fetching varients:", error);
-      message.error("Failed to fetch varients");
+      console.error("Error fetching variants:", error);
+      message.error("Failed to fetch variants");
     }
   };
+
+
+
+  useEffect(() => {
+    fetchBrands();
+  }, []);
+
+  // Handle change in brand selection
+  const handleBrandChange = async (brandId) => {
+    try {
+      if (brandId) {
+        fetchModels(brandId);
+      } else {
+        setModels([]);
+      }
+    } catch (error) {
+      console.error('Error handling brand change:', error);
+    }
+  };
+
+  // Handle change in model selection
+  const handleModelChange = async (modelId) => {
+    try {
+      if (modelId) {
+        fetchVariants(modelId);
+      } else {
+        setVariants([]);
+      }
+    } catch (error) {
+      console.error('Error handling model change:', error);
+    }
+  };
+
+  // Handle form value change
   const handleFormChange = (changedValues, allValues) => {
     setFormData(allValues);
+  };
+
+  // Handle date change
+  const handleDateChange = (date) => {
+    setFormData({ ...formData, registrationDate: date });
   };
 
   return (
@@ -128,25 +151,24 @@ const NewCar = () => {
               name="brand"
               rules={[{ required: true, message: "Please select brand" }]}
             >
-              <Select>
+              <Select onChange={handleBrandChange}>
                 {brands.map((brand) => (
-                  <Option key={brand._id} value={brand.brand}>
+                  <Option key={brand._id} value={brand._id}>
                     {brand.brand}
                   </Option>
                 ))}
               </Select>
             </Form.Item>
-
           </Col>
           <Col span={12}>
             <Form.Item
               label="Models"
               name="model"
-              rules={[{ required: true, message: "Please select brand" }]}
+              rules={[{ required: true, message: "Please select model" }]}
             >
-              <Select>
+              <Select onChange={handleModelChange}>
                 {models.map((model) => (
-                  <Option key={model._id} value={model.model}>
+                  <Option key={model._id} value={model._id}>
                     {model.model}
                   </Option>
                 ))}
@@ -157,26 +179,26 @@ const NewCar = () => {
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
+              label="Variant"
+              name="variant"
+              rules={[{ required: true, message: "Please select variant" }]}
+            >
+              <Select>
+                {variants.map((variant) => (
+                  <Option key={variant._id} value={variant._id}>
+                    {variant.variant}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
               label="Year"
               name="year"
               rules={[{ required: true, message: "Please enter year" }]}
             >
               <Input type="number" />
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item
-              label="Varients"
-              name="varient"
-              rules={[{ required: true, message: "Please select varient" }]}
-            >
-              <Select>
-                {varients.map((varient) => (
-                  <Option key={varient._id} value={varient.varient}>
-                    {varient.varient}
-                  </Option>
-                ))}
-              </Select>
             </Form.Item>
           </Col>
         </Row>
@@ -194,13 +216,31 @@ const NewCar = () => {
             <Form.Item
               label="Color"
               name="color"
-              rules={[{ required: true, message: "Please enter year" }]}
+              rules={[{ required: true, message: "Please enter color" }]}
             >
               <Input />
             </Form.Item>
           </Col>
         </Row>
         <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item
+              label="Car Name"
+              name="carName"
+              rules={[{ required: true, message: "Please enter name" }]}
+            >
+              <Input />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              label="Registration Date"
+              name="registrationDate"
+              rules={[{ required: true, message: "Please select registration date" }]}
+            >
+              <DatePicker onChange={handleDateChange} style={{ width: '100%' }} />
+            </Form.Item>
+          </Col>
           <Col span={12}>
             <Form.Item
               label="Image"
@@ -212,17 +252,6 @@ const NewCar = () => {
               <Upload beforeUpload={() => false}>
                 <Button icon={<UploadOutlined />}>Click to Upload</Button>
               </Upload>
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item
-              label="Registration Date"
-              name="registrationDate"
-              rules={[
-                { required: true, message: "Please select registration date" },
-              ]}
-            >
-              <DatePicker style={{ width: "100%" }} />
             </Form.Item>
           </Col>
         </Row>

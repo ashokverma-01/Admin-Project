@@ -2,7 +2,7 @@ import "./Login.css"
 import React from "react";
 import { Input, Button, Form, message } from "antd";
 import { useNavigate } from "react-router-dom";
-
+// import backgroundImage from "./BannerImage/.jpg";
 
 
 const Login = () => {
@@ -49,6 +49,10 @@ const Login = () => {
 
   return (
     <div className="container2" >
+      {/* <div className="background-image-container">
+        <img src={backgroundImage} alt="Background" className="background-image" />
+      </div> */}
+
       <h1>Login</h1>
       <Form
         form={form}

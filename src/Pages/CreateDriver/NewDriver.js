@@ -1,5 +1,5 @@
 import './NewDriver.scss'
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Form, Input, Select, Button, Row, Col, message, Upload } from "antd";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
@@ -10,11 +10,13 @@ const { Option } = Select;
 
 const AddDriver = () => {
     const [form] = Form.useForm();
+    const [cars, setCars] = useState([]);
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         driverName: "",
         licenseNumber: "",
         phoneNumber: "",
+        email: "",
         address: "",
         image: [] // Initialize image as an empty array
     });
@@ -25,6 +27,8 @@ const AddDriver = () => {
             formDataToSubmit.append("driverName", formData.driverName);
             formDataToSubmit.append("licenseNumber", formData.licenseNumber);
             formDataToSubmit.append("phoneNumber", formData.phoneNumber);
+            formDataToSubmit.append("email", formData.email);
+            formDataToSubmit.append("carId", formData.car);
             formDataToSubmit.append("address", formData.address);
             formDataToSubmit.append("image", formData.image[0]?.originFileObj); // Access originFileObj of the File object
 
@@ -45,6 +49,24 @@ const AddDriver = () => {
             message.error("Failed to add Driver");
         }
     };
+
+    useEffect(() => {
+        fetchCars(); // Fetch drivers when component mounts
+    }, []);
+    const fetchCars = async () => {
+        try {
+            const response = await fetch(`http://localhost:5500/Car`);
+            if (!response.ok) {
+                throw new Error("Failed to fetch cars");
+            }
+            const data = await response.json();
+            setCars(data);
+        } catch (error) {
+            console.error("Error fetching cars:", error);
+            message.error("Failed to fetch cars");
+        }
+    };
+
 
     const handleFormChange = (changedValues, allValues) => {
         setFormData(allValues);
@@ -89,7 +111,18 @@ const AddDriver = () => {
                                 { required: true, message: "Please input your phone number!" },
                             ]}
                         >
-                            <PhoneInput />
+                            <PhoneInput inputStyle={{ width: '100%' }} />
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item
+                            label="Email"
+                            name="email"
+                            rules={[
+                                { required: true, message: "Please input your email!" },
+                            ]}
+                        >
+                            <Input />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
@@ -99,6 +132,21 @@ const AddDriver = () => {
                             rules={[{ required: true, message: "Please input address!" }]}
                         >
                             <Input />
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item
+                            label="Cars"
+                            name="car"
+                            rules={[{ required: true, message: "Please select car" }]}
+                        >
+                            <Select>
+                                {cars.map((car) => (
+                                    <Option key={car._id} value={car._id}>
+                                        {car.carName}
+                                    </Option>
+                                ))}
+                            </Select>
                         </Form.Item>
                     </Col>
 

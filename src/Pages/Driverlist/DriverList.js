@@ -1,22 +1,23 @@
 import React, { useState, useEffect } from "react";
-import { Button, Space, Table, Select, Switch, Input, Form, DatePicker, Modal } from "antd"; // Import Modal
+import { Button, Space, Table, Switch, Input, Modal, Row, Col } from "antd";
 import { MdDelete } from "react-icons/md";
 import { Link } from "react-router-dom";
 import { FaRegEdit } from "react-icons/fa";
 import moment from "moment";
-import "./DriverList.scss"
-
+import { FaEye } from "react-icons/fa";
+import './DriverList.scss'
 const { Search } = Input;
-const { Option } = Select;
-const { RangePicker } = DatePicker;
 
 const DriverList = () => {
   const [data, setData] = useState([]);
   const [sortedInfo, setSortedInfo] = useState({});
   const [filteredData, setFilteredData] = useState([]);
+  const [driverVehicles, setDriverVehicles] = useState([]);
   const [searchValue, setSearchValue] = useState('');
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [deleteDriverId, setDeleteDriverId] = useState(null);
+  const [viewModalVisible, setViewModalVisible] = useState(false);
+  const [selectedDriver, setSelectedDriver] = useState(null);
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 4,
@@ -57,8 +58,7 @@ const DriverList = () => {
     }
   };
 
-  const handleModalCancel = () => {
-    setDeleteDriverId(null);
+  const handleCancelDelete = () => {
     setDeleteModalVisible(false);
   };
 
@@ -67,10 +67,31 @@ const DriverList = () => {
     setDeleteModalVisible(true);
   };
 
-  const searchHandle = async (key) => {
+  const handleView = async (driverId) => {
     try {
-      if (key) {
-        let result = await fetch(`http://localhost:5500/searchDriver/${key}`);
+      const driverResponse = await fetch(`http://localhost:5500/get-driver/${driverId}`);
+      if (!driverResponse.ok) {
+        throw new Error("Failed to fetch driver details");
+      }
+      const driverData = await driverResponse.json();
+      setSelectedDriver(driverData.driver);
+      setViewModalVisible(true);
+    } catch (error) {
+      console.error("Error fetching driver details:", error);
+    }
+  };
+
+
+  const handleViewModalCancel = () => {
+    setSelectedDriver(null);
+    setDriverVehicles([]);
+    setViewModalVisible(false);
+  };
+
+  const searchHandle = async (value) => { // Corrected parameter name
+    try {
+      if (value) {
+        let result = await fetch(`http://localhost:5500/searchDriver/${value}`);
         if (!result.ok) {
           throw new Error("Failed to search data");
         }
@@ -82,6 +103,24 @@ const DriverList = () => {
       setSearchValue("");
     } catch (error) {
       console.error("Error searching data:", error);
+    }
+  };
+
+  const handleActiveChange = async (id, active) => {
+    try {
+      const response = await fetch(`http://localhost:5500/ActiveDriver/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ active }),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to update active state");
+      }
+      fetchData();
+    } catch (error) {
+      console.error("Error updating active state:", error);
     }
   };
 
@@ -98,45 +137,17 @@ const DriverList = () => {
     }
   };
 
-  const handleGenderChange = (value) => {
-    let filteredData;
-    if (value === "all") {
-      filteredData = data;
-    } else {
-      filteredData = data.filter((item) => item.gender === value);
-    }
-    setFilteredData(filteredData);
-  };
-
-
-  const handleActiveChange = async (id, active) => {
-    try {
-      const response = await fetch(`http://localhost:5500/ActiveDriver/${id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ active }), // Send the current switch state as true or false
-      });
-      if (!response.ok) {
-        throw new Error("Failed to update active state");
-      }
-      // If the update is successful, update the data by refetching
-      fetchData();
-    } catch (error) {
-      console.error("Error updating active state:", error);
-    }
-  };
-
   const columns = [
     {
-      title: "Car Image",
+      title: "Profile",
       dataIndex: "image",
       key: "image",
-      render: (image) => (
+      render: (image, record) => (
         <img
-          src={image && `http://localhost:5500/${image.replace(/\\/g, "/")}`} // Prefix with server address
-          alt="Car Image"
+          key={record._id}
+          style={{ width: '60px', height: '60px', borderRadius: '50%' }}
+          src={image && `http://localhost:5500/${image.replace(/\\/g, "/")}`}
+          alt="Driver Image"
           className="circular-image "
         />
       ),
@@ -154,6 +165,11 @@ const DriverList = () => {
       key: "licenseNumber",
     },
     {
+      title: "Email",
+      dataIndex: "email",
+      key: "email",
+    },
+    {
       title: "Phone Number",
       dataIndex: "phoneNumber",
       key: "phoneNumber",
@@ -167,7 +183,7 @@ const DriverList = () => {
       title: "Date",
       dataIndex: "timeTemps",
       key: "timeTemps",
-      render: (date) => <span>{moment(date).format("YYYY-MM-DD")}</span>,
+      render: (date) => <span>{moment(date).format("DD-MM-YYYY")}</span>,
       filters: [
         {
           text: "Today",
@@ -206,6 +222,7 @@ const DriverList = () => {
       title: "Action",
       render: (text, record) => (
         <Space size="middle">
+          <FaEye style={{ width: "20px", height: "20px", color: 'black' }} onClick={() => handleView(record._id)} />
           <Link to={"/driver/" + record._id}>
             <FaRegEdit style={{ width: "20px", height: "20px" }}></FaRegEdit>
           </Link>
@@ -220,11 +237,11 @@ const DriverList = () => {
 
   return (
     <div className="home">
-      <div className="top">
+      <div className="top" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div className="search">
           <Space direction="vertical">
             <Search
-              placeholder="input search text"
+              placeholder="search by driver name"
               onSearch={searchHandle}
               style={{
                 width: 300,
@@ -233,15 +250,7 @@ const DriverList = () => {
           </Space>
         </div>
         <div className="filters" style={{ marginLeft: '50px' }}>
-          <Form layout="inline">
-            {/* <Form.Item label="Filter by Gender">
-              <Select defaultValue="all" onChange={handleGenderChange} style={{ width: 120 }}>
-                <Option value="all">All</Option>
-                <Option value="male">Male</Option>
-                <Option value="female">Female</Option>
-              </Select>
-            </Form.Item> */}
-          </Form>
+
         </div>
         <div className="addbtn">
           <Button type="primary">
@@ -251,10 +260,11 @@ const DriverList = () => {
       </div>
       <div className="table" style={{ fontFamily: 'none' }}>
         <Table
+          className="table-container"
           columns={columns}
           dataSource={filteredData.length > 0 ? filteredData : data}
           onChange={handleChange}
-          pagination={pagination}
+          pagination={pagination} // Corrected pagination passing
           sortedInfo={sortedInfo}
         />
       </div>
@@ -262,13 +272,114 @@ const DriverList = () => {
         title="Confirm Delete"
         visible={deleteModalVisible}
         onOk={handleModalOk}
-        onCancel={handleModalCancel}
-        okText="OK"
-        cancelText="Cancel"
+        onCancel={handleCancelDelete}
       >
         <p>Are you sure you want to delete this driver?</p>
       </Modal>
-    </div>
+
+      <Modal
+        style={{ width: '100%' }}
+        className="driver-details-modal"
+        visible={viewModalVisible}
+        onCancel={handleViewModalCancel}
+        footer={null}
+      >
+        {selectedDriver && (
+          <table className="driver-table">
+            <tbody>
+              <tr>
+                <td>
+                  <img
+                    style={{ width: '100px', height: '100px', borderRadius: '50%' }}
+                    src={selectedDriver.image ? `http://localhost:5500/${selectedDriver.image}` : `http://localhost:5500/Driver`}
+                    alt="Driver"
+                    className="driver-image"
+                  />
+                </td>
+                <td className="driver-info">
+                  <table style={{ marginLeft: '30px' }}>
+                    <thead>
+                      <tr>
+                        <th colSpan="2">Driver Details</th>
+                      </tr>
+                    </thead>
+                    <tbody style={{ marginLeft: '50px' }}>
+                      <tr>
+                        <td >Name :</td>
+                        <td style={{ color: 'blue' }}>{selectedDriver.driverName}</td>
+                      </tr>
+                      <tr>
+                        <td>Phone :</td>
+                        <td style={{ color: 'blue' }}>{selectedDriver.phoneNumber}</td>
+                      </tr>
+                      <tr>
+                        <td>Address :</td>
+                        <td style={{ color: 'blue' }}>{selectedDriver.address}</td>
+                      </tr>
+                      <tr>
+                        <td>Email :</td>
+                        <td style={{ color: 'blue' }}>{selectedDriver.email}</td>
+                      </tr>
+
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        )}
+
+        <hr />
+
+        {selectedDriver?.car ? (
+
+          <table className="car-table">
+            <tbody>
+              <tr key={selectedDriver?.car?._id}>
+                <td>
+                  {selectedDriver?.car?.image ? (
+                    <img
+                      style={{ width: '130px', height: "115px", marginTop: '8px' }}
+                      src={selectedDriver?.car?.image ? `http://localhost:5500/${selectedDriver?.car?.image}` : `http://localhost:5500/Car`}
+                      alt="Car Image"
+                      className="car-image"
+                    />
+                  ) : (
+                    <p>No Image Available</p>
+                  )}
+                </td>
+                <tr>
+                  <td>Brand :</td>
+                  <td style={{ color: 'blue' }}>{selectedDriver?.car?.brand.brand}</td>
+                </tr>
+                <tr>
+                  <td>Model :</td>
+                  <td style={{ color: 'blue' }}>{selectedDriver?.car?.model.model}</td>
+                </tr>
+                <tr>
+                  <td>Variant :</td>
+                  <td style={{ color: 'blue' }}>{selectedDriver?.car?.variant.variant}</td>
+                </tr>
+                <tr>
+                  <td>Car Name :</td>
+                  <td style={{ color: 'blue' }}>{selectedDriver?.car?.carName}</td>
+                </tr>
+                <tr>
+                  <td>Price :</td>
+                  <td style={{ color: 'blue' }}>{selectedDriver?.car?.price}</td>
+                </tr>
+
+              </tr>
+            </tbody>
+          </table>
+        ) : (
+          <p>No car details found</p>
+        )}
+
+        {!selectedDriver && <p>No driver selected</p>}
+      </Modal>
+
+    </div >
   );
 };
 

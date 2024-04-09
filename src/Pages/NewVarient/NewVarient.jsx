@@ -1,123 +1,129 @@
-import React, { useState, useEffect } from "react";
-import { Form, Input, Button, message, Row, Col, Cascader } from "antd";
-import { useNavigate } from "react-router-dom";
-import "./NewVarient.scss";
+import React, { useState, useEffect } from 'react';
+import { Form, Input, Select, Button, message } from 'antd';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import './NewVarient.scss';
+const { Option } = Select;
 
-const NewVarient = () => {
-    const [form] = Form.useForm();
-    const navigate = useNavigate();
-    const [formData, setFormData] = useState({
-        varient: "",
-        brand: [], // This will hold the selected brand and model as an array [brand, model]
-    });
-    const [options, setOptions] = useState([]);
-    const [loading, setLoading] = useState(false);
+const AddVariantForm = () => {
+    const [brands, setBrands] = useState([]);
+    const [models, setModels] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const navigate = useNavigate(); // Use navigate as a function
 
     useEffect(() => {
-        fetchDataFrom();
+        fetchData();
     }, []);
 
-    const fetchDataFrom = async () => {
+    const fetchData = async () => {
         try {
-            const response = await fetch("http://localhost:5500/models");
-            if (!response.ok) {
-                throw new Error("Failed to fetch data");
+            const brandsResponse = await axios.get('http://localhost:5500/brands');
+            if (brandsResponse && brandsResponse.data) {
+                setBrands(brandsResponse.data);
+                setLoading(false);
+            } else {
+                console.error('Invalid response format');
             }
-            const data = await response.json();
-            const formattedData = data.map((item) => ({
-                value: item.brand,
-                label: item.brand,
-                children: [
-                    {
-                        value: item.model,
-                        label: item.model,
-                    },
-                ],
-            }));
-            setOptions(formattedData);
         } catch (error) {
-            console.error("Error fetching data:", error);
-            message.error("Failed to fetch data");
+            console.error('Error fetching brands:', error);
+            message.error('Failed to fetch brands');
         }
     };
 
-    const handleSubmit = async () => {
+    const fetchModels = async (brandId) => {
         try {
-            setLoading(true);
-            const formDataToSubmit = {
-                varient: formData.varient,
-                brand: formData.brand[0],
-                model: formData.brand[1],
-            };
-            const response = await fetch("http://localhost:5500/AddVarient", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(formDataToSubmit)
+            const modelsResponse = await axios.get(`http://localhost:5500/models?brandId=${brandId}`);
+            if (modelsResponse && modelsResponse.data) {
+                setModels(modelsResponse.data); // Update models state here
+            } else {
+                console.error('Invalid response format');
+            }
+        } catch (error) {
+            console.error('Error fetching models:', error);
+            message.error('Failed to fetch models');
+        }
+    };
+
+    const handleBrandChange = async (e) => {
+        try {
+            console.log(e);
+            if (e) {
+                fetchModels(e);
+            } else {
+                setModels([]);
+            }
+        } catch (error) {
+            console.error('Error handling brand change:', error);
+        }
+    };
+
+
+    const onFinish = async (values) => {
+        try {
+            const response = await axios.post('http://localhost:5500/variants', {
+                variant: values.variant,
+                brandId: values.brandId,
+                modelId: values.modelId
             });
-
-            if (!response.ok) {
-                throw new Error("Failed to add varient");
-            }
-
-            message.success("Varient added successfully");
-            form.resetFields();
-            navigate("/varients");
+            console.log(response.data);
+            message.success('Variant added successfully');
+            navigate('/varients'); // Navigate to the variants page after successful addition
         } catch (error) {
-            console.error("Error:", error);
-            message.error("Failed to add varient");
-        } finally {
-            setLoading(false);
+            console.error('Error adding variant:', error);
+            message.error('Failed to add variant');
         }
-    };
-
-    const handleFormChange = (changedValues, allValues) => {
-        setFormData({ ...formData, ...allValues });
     };
 
     return (
-        <div className="new-car-form-container">
-            <Form
-                form={form}
-                layout="vertical"
-                onFinish={handleSubmit}
-                initialValues={formData}
-                onValuesChange={handleFormChange}
-            >
-                <h1 className="form-title">Add New Variant</h1>
-                <Row gutter={16}>
-                    <Col span={12}>
-                        <Form.Item
-                            label="Variant Name"
-                            name="varient"
-                            rules={[{ required: true, message: "Please enter variant" }]}
-                        >
-                            <Input />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item label="Brands / Models">
-                            <Cascader
-                                options={options}
-                                placeholder="Please select"
-                                onChange={(value) => setFormData({ ...formData, brand: value })}
-                            />
-                        </Form.Item>
-                    </Col>
-                </Row>
-                <Row>
-                    <Col span={24}>
-                        <Form.Item>
-                            <Button className="submit-btn2" type="primary" htmlType="submit" loading={loading}>
-                                Submit
-                            </Button>
-                        </Form.Item>
-                    </Col>
-                </Row>
-            </Form>
+        <div className='new-car-form-container'>
+            {!loading && (
+                <Form onFinish={onFinish} layout="vertical">
+                    <Form.Item
+                        label="Variant"
+                        name="variant"
+                        rules={[{ required: true, message: 'Please enter the variant' }]}
+                    >
+                        <Input />
+                    </Form.Item>
+
+                    <Form.Item
+                        label="Brand"
+                        name="brandId"
+                        rules={[{ required: true, message: 'Please select a brand' }]}
+                    >
+                        <Select onChange={handleBrandChange}>
+                            {brands.map((brand) => (
+                                <Option key={brand._id} value={brand._id}>
+                                    {brand.brand}
+                                </Option>
+                            ))}
+                        </Select>
+                    </Form.Item>
+
+
+                    <Form.Item
+                        label="Model"
+                        name="modelId"
+                        rules={[{ required: true, message: 'Please select a model' }]}
+                    >
+                        <Select>
+                            {models.map((model) => (
+                                <Option key={model._id} value={model._id}>
+                                    {model.model}
+                                </Option>
+                            ))}
+                        </Select>
+                    </Form.Item>
+
+                    <Form.Item>
+                        <Button type="primary" style={{ width: '100%' }} htmlType="submit">
+                            Add Variant
+                        </Button>
+                    </Form.Item>
+                </Form>
+            )}
         </div>
     );
 };
 
-export default NewVarient;
+export default AddVariantForm;

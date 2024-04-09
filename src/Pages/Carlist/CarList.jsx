@@ -107,6 +107,7 @@ const CarList = () => {
       key: "image",
       render: (image) => (
         <img
+          style={{ width: '80px', height: '80px' }}
           src={image && `http://localhost:5500/${image.replace(/\\/g, "/")}`} // Prefix with server address
           alt="Car Image"
           className="circular-image"
@@ -117,6 +118,7 @@ const CarList = () => {
       title: "Car Model",
       dataIndex: "model",
       key: "model",
+      render: (model) => model.model,
       sorter: (a, b) => a.model.localeCompare(b.model),
       sortOrder: sortedInfo.columnKey === "model" && sortedInfo.order,
     },
@@ -124,11 +126,13 @@ const CarList = () => {
       title: "Brand",
       dataIndex: "brand",
       key: "brand",
+      render: (brand) => brand.brand,
     },
     {
-      title: "Varient",
-      dataIndex: "varient",
-      key: "varient",
+      title: "Variant",
+      dataIndex: "variant",
+      key: "variant",
+      render: (variant) => variant.variant,
     },
     {
       title: "Year",
@@ -147,10 +151,15 @@ const CarList = () => {
       key: "price",
     },
     {
+      title: "Car Name",
+      dataIndex: "carName",
+      key: "carName",
+    },
+    {
       title: "Registration Date",
       dataIndex: "registrationDate",
       key: "registrationDate",
-      render: (date) => <span>{moment(date).format("YYYY-MM-DD")}</span>,
+      render: (date) => <span>{moment(date).format("DD-MM-YYYY")}</span>,
     },
     {
       title: "Action",
@@ -170,10 +179,10 @@ const CarList = () => {
 
   return (
     <div className="home">
-      <div className="top">
+      <div className="top" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div className="search">
           <Search
-            placeholder="Input search text"
+            placeholder="search by car name"
             onSearch={searchHandle}
             style={{ width: 300 }}
           />
@@ -200,6 +209,7 @@ const CarList = () => {
       </div>
       <div className="table" style={{ fontFamily: "none" }}>
         <Table
+          className="table-container"
           columns={columns}
           dataSource={filteredData.length > 0 ? filteredData : data}
           onChange={handleChange}

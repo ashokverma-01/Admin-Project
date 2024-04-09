@@ -3,7 +3,7 @@ import { Button, Space, Table, Select, Switch, Input, Form, DatePicker, Modal } 
 import { MdDelete } from "react-icons/md";
 import { Link } from "react-router-dom";
 import { FaRegEdit } from "react-icons/fa";
-import "./userList.scss";
+// import "./userList.scss";
 import moment from "moment";
 
 const { Search } = Input;
@@ -146,17 +146,17 @@ const UserList = () => {
 
   const columns = [
     {
-      title: "First Name",
+      title: "Name",
       dataIndex: "firstname",
       key: "firstname",
       sorter: (a, b) => a.firstname.localeCompare(b.firstname),
       sortOrder: sortedInfo.columnKey === "firstname" && sortedInfo.order,
     },
-    {
-      title: "Last Name",
-      dataIndex: "lastname",
-      key: "lastname",
-    },
+    // {
+    //   title: "Last Name",
+    //   dataIndex: "lastname",
+    //   key: "lastname",
+    // },
     {
       title: "Email",
       dataIndex: "email",
@@ -192,7 +192,7 @@ const UserList = () => {
       title: "Date",
       dataIndex: "timeTemps",
       key: "timeTemps",
-      render: (date) => <span>{moment(date).format("YYYY-MM-DD")}</span>,
+      render: (date) => <span>{moment(date).format("DD-MM-YYYY")}</span>,
       filters: [
         {
           text: "Today",
@@ -246,11 +246,11 @@ const UserList = () => {
 
   return (
     <div className="home">
-      <div className="top">
+      <div className="top" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div className="search">
           <Space direction="vertical">
             <Search
-              placeholder="input search text"
+              placeholder="search by user name"
               onSearch={searchHandle}
               style={{
                 width: 300,
@@ -287,6 +287,7 @@ const UserList = () => {
       </div>
       <div className="table" style={{ fontFamily: 'none' }}>
         <Table
+          className="table-container"
           columns={columns}
           dataSource={filteredData.length > 0 ? filteredData : data}
           onChange={handleChange}

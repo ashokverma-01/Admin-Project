@@ -12,44 +12,11 @@ const UpdateModel = () => {
     const params = useParams();
     const navigate = useNavigate();
 
+
     useEffect(() => {
         fetchData();
         fetchBrands();
     }, []);
-
-    const fetchData = async () => {
-        try {
-            let result = await fetch(`http://localhost:5500/UpdateModel/${params.id}`);
-            if (!result.ok) {
-                throw new Error("Failed to fetch model data");
-            }
-            result = await result.json();
-            setModel(result.model);
-            setBrand(result.brand);
-        } catch (error) {
-            setError(error.message);
-        }
-    };
-
-    const handleUpdate = async () => {
-        try {
-            let result = await fetch(`http://localhost:5500/UpdateModel/${params.id}`, {
-                method: 'PUT',
-                body: JSON.stringify({ model, brand }),
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-            if (!result.ok) {
-                throw new Error("Failed to update model data");
-            }
-            result = await result.json();
-            console.log(result);
-            navigate('/model');
-        } catch (error) {
-            setError(error.message);
-        }
-    };
 
     const fetchBrands = async () => {
         try {
@@ -64,6 +31,66 @@ const UpdateModel = () => {
             message.error("Failed to fetch brands");
         }
     };
+
+    const fetchData = async () => {
+        try {
+            let result = await fetch(`http://localhost:5500/UpdateModel/${params.id}`);
+            if (!result.ok) {
+                throw new Error("Failed to fetch model data");
+            }
+            result = await result.json();
+            setModel(result.model);
+            setBrand(result.brand._id); // Update to set the brand ID instead of the entire brand object
+        } catch (error) {
+            setError(error.message);
+        }
+    };
+
+    const handleUpdate = async () => {
+        try {
+            // Validate if model and brand are not empty
+            if (!model || !brand) {
+                throw new Error("Model and brand are required");
+            }
+
+            // Find the selected brand object based on the brand ID
+            const selectedBrand = brandsList.find(brandObj => brandObj._id === brand);
+            if (!selectedBrand) {
+                throw new Error("Invalid brand selected");
+            }
+
+            // Construct the request body
+            const requestBody = {
+                model,
+                brand: selectedBrand._id // Send the brand ID instead of the brand name
+            };
+
+            // Make the PUT request to update the model
+            const response = await fetch(`http://localhost:5500/UpdateModel/${params.id}`, {
+                method: 'PUT',
+                body: JSON.stringify(requestBody),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            // Check if the request was successful
+            if (!response.ok) {
+                throw new Error("Failed to update model data");
+            }
+
+            // Parse the response JSON
+            const result = await response.json();
+            console.log(result);
+
+            // Navigate to the model page upon successful update
+            navigate('/model');
+        } catch (error) {
+            setError(error.message);
+        }
+    };
+
+
 
     return (
         <div className="new-car-form-container">
@@ -80,17 +107,20 @@ const UpdateModel = () => {
                     </Col>
                     <Col span={12}>
                         <Form.Item label="Brand" initialValue={brand}>
-                            <Select
-                                className="input-field"
-                                value={brand}
-                                onChange={(value) => setBrand(value)}
-                            >
-                                {brandsList.map(brand => (
-                                    <Option key={brand._id} value={brand.brand}>
-                                        {brand.brand}
-                                    </Option>
-                                ))}
-                            </Select>
+                            {/* Conditional rendering to ensure brandsList is populated */}
+                            {brandsList.length > 0 && (
+                                <Select
+                                    className="input-field"
+                                    value={brand}
+                                    onChange={(value) => setBrand(value)}
+                                >
+                                    {brandsList.map(brand => (
+                                        <Option key={brand._id} value={brand._id}>
+                                            {brand.brand}
+                                        </Option>
+                                    ))}
+                                </Select>
+                            )}
                         </Form.Item>
                     </Col>
                 </Row>

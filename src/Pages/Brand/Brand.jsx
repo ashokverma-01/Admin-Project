@@ -4,7 +4,7 @@ import { MdDelete } from "react-icons/md";
 import { Link } from "react-router-dom";
 import { FaRegEdit } from "react-icons/fa";
 import moment from "moment";
-
+import './BrandList.css'
 const { Search } = Input;
 
 const BrandList = () => {
@@ -94,10 +94,24 @@ const BrandList = () => {
 
   const columns = [
     {
+      title: "Brand Logo",
+      dataIndex: "image",
+      key: "image",
+      render: (image) => (
+        <img
+          style={{ width: '60px', height: '60px', borderRadius: '50%' }}
+          src={image && `http://localhost:5500/${image.replace(/\\/g, "/")}`} // Prefix with server address
+          alt="Brand Image"
+          className="circular-image "
+        />
+      ),
+    },
+    {
       title: "Brand Name",
       dataIndex: "brand",
       key: "brand",
     },
+
     {
       title: "Description",
       dataIndex: "description",
@@ -107,7 +121,7 @@ const BrandList = () => {
       title: "Date",
       dataIndex: "timeTemps",
       key: "timeTemps",
-      render: (date) => <span>{moment(date).format("YYYY-MM-DD")}</span>,
+      render: (date) => <span>{moment(date).format("DD-MM-YYYY")}</span>,
       filters: [
         {
           text: "Today",
@@ -144,10 +158,10 @@ const BrandList = () => {
 
   return (
     <div className="home">
-      <div className="top">
+      <div className="top" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div className="search">
           <Search
-            placeholder="Input search text"
+            placeholder=" search by brand name"
             onSearch={searchHandle}
             style={{ width: 300 }}
           />
@@ -160,6 +174,7 @@ const BrandList = () => {
       </div>
       <div className="table" style={{ fontFamily: "none" }}>
         <Table
+          className="table-container"
           columns={columns}
           dataSource={filteredData.length > 0 ? filteredData : data}
           onChange={handleChange}

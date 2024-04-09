@@ -8,8 +8,6 @@ const UploadFile = () => {
 
     const handleUpload = async ({ file }) => {
         setUploading(true);
-        setImageUrl(file);
-        console.log("-------------------------->>> ", file);
         try {
             const formData = new FormData();
             formData.append("image", file);
@@ -24,7 +22,7 @@ const UploadFile = () => {
             }
 
             const data = await response.json();
-            setImageUrl(data.imagePath);
+            setImageUrl(data.imagePath); // Set imageUrl to the path of the uploaded image
             message.success("File uploaded successfully.");
         } catch (error) {
             console.error("Error uploading file:", error);
@@ -49,7 +47,7 @@ const UploadFile = () => {
             {imageUrl && (
                 <div>
                     <p>Uploaded Image:</p>
-                    <img src={imageUrl} alt="Uploaded" style={{ width: '100px', height: '100px' }} />
+                    <img src={`http://localhost:5500/${imageUrl}`} alt="Uploaded" style={{ width: '100px', height: '100px', borderRadius: '50%' }} />
                 </div>
             )}
 

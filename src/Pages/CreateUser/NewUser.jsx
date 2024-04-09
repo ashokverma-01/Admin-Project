@@ -174,6 +174,7 @@ const Addusers = () => {
                                 country={"india"}
                                 className="phone-input"
                                 value={phoneNumber}
+                                inputStyle={{ width: '100%' }}
                                 onChange={setPhoneNumber}
                             />
                         </Form.Item>

@@ -2,7 +2,7 @@
 
     .container {
         display: flex;
-        background-color: rgb(236, 239, 247);
+        background-color: rgb(247, 247, 248);
 
         .link {
             text-decoration: none;
@@ -10,8 +10,11 @@
         }
 
         .others {
+            width: 250px;
             flex: 5;
             margin: 20px;
         }
+
+
     }
 }

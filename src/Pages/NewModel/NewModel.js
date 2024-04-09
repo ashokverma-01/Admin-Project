@@ -1,118 +1,90 @@
-import React, { useState, useEffect } from "react";
-import { Form, Input, Button, message, Row, Col, Select } from "antd";
-import { useNavigate } from "react-router-dom";
-
-
+import React, { useState, useEffect } from 'react';
+import { Form, Input, Button, Select } from 'antd';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import './NewModel.css'
 const { Option } = Select;
 
-const NewModel = () => {
-    const [form] = Form.useForm();
-    const navigate = useNavigate();
-    const [formData, setFormData] = useState({
-        model: "",
-        brand: "",
-    });
-    const [brands, setBrand] = useState([]);
-
-    const handleSubmit = async () => {
-        try {
-            const formDataToSubmit = {
-                model: formData.model,
-                brand: formData.brand,
-            };
-
-            const response = await fetch("http://localhost:5500/AddModel", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(formDataToSubmit)
-            });
-
-            if (!response.ok) {
-                throw new Error("Failed to add model");
-            }
-
-            message.success("model added successfully");
-            form.resetFields();
-            navigate("/model");
-        } catch (error) {
-            console.error("Error:", error);
-            message.error("Failed to add model");
-        }
-    };
+const AddModelForm = () => {
+    const [model, setModel] = useState('');
+    const [brandId, setBrandId] = useState('');
+    const [brands, setBrands] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate()
 
     useEffect(() => {
         fetchBrands();
-
     }, []);
+
     const fetchBrands = async () => {
+        setLoading(true);
         try {
-            const response = await fetch("http://localhost:5500/brands");
-            if (!response.ok) {
-                throw new Error("Failed to fetch brands");
+            const response = await axios.get('http://localhost:5500/brands');
+            if (response && response.data) {
+                setBrands(response.data);
+            } else {
+                console.error('Invalid response format:', response);
             }
-            const data = await response.json();
-            setBrand(data);
         } catch (error) {
-            console.error("Error fetching brands:", error);
-            message.error("Failed to fetch brands");
+            console.error('Error fetching brands:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
+    const handleSubmit = async () => {
+        try {
+            const response = await axios.post('http://localhost:5500/AddModel', {
+                model,
+                brandId, // Send brand ID instead of brand name
+            });
 
-    const handleFormChange = (changedValues, allValues) => {
-        setFormData(allValues);
+            console.log(response.data);
+            // Handle success, e.g., show a success message or redirect to another page
+            navigate('/model');
+        } catch (error) {
+            console.error('Error adding model:', error);
+            // Handle error, e.g., show an error message to the user
+        }
     };
 
     return (
         <div className="new-car-form-container">
-            <Form
-                form={form}
-                layout="vertical"
-                onFinish={handleSubmit}
-                initialValues={formData}
-                onValuesChange={handleFormChange}
-            >
-                <h1 className="form-title">Add New  Model</h1>
-                <Row gutter={16}>
-                    <Col span={12}>
-                        <Form.Item
-                            label="Model Name"
-                            name="model"
-                            rules={[{ required: true, message: "Please enter model" }]}
-                        >
-                            <Input />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item
-                            label="Brands"
-                            name="brand"
-                            rules={[{ required: true, message: "Please select brand" }]}
-                        >
-                            <Select>
-                                {brands.map((brand) => (
-                                    <Option key={brand._id} value={brand.brand}>
-                                        {brand.brand}
-                                    </Option>
-                                ))}
-                            </Select>
-                        </Form.Item>
-                    </Col>
-                </Row>
-                <Row>
-                    <Col span={24}>
-                        <Form.Item>
-                            <Button className="submit-btn2" type="primary" htmlType="submit">
-                                Submit
-                            </Button>
-                        </Form.Item>
-                    </Col>
-                </Row>
+            <Form onFinish={handleSubmit} layout="vertical">
+                <Form.Item
+                    label="Model"
+                    name="model"
+                    rules={[{ required: true, message: 'Please enter the model!' }]}
+                >
+                    <Input value={model} onChange={(e) => setModel(e.target.value)} />
+                </Form.Item>
+
+                <Form.Item
+                    label="Brand"
+                    name="brandId"
+                    rules={[{ required: true, message: 'Please select a brand!' }]}
+                >
+                    <Select
+                        value={brandId}
+                        onChange={(value) => setBrandId(value)}
+                        loading={loading}
+                    >
+                        {brands.map((brand) => (
+                            <Option key={brand._id} value={brand._id}>
+                                {brand.brand}
+                            </Option>
+                        ))}
+                    </Select>
+                </Form.Item>
+
+                <Form.Item>
+                    <Button type="primary" className='submit-btn' htmlType="submit">
+                        Add Model
+                    </Button>
+                </Form.Item>
             </Form>
         </div>
     );
 };
 
-export default NewModel;
+export default AddModelForm;
